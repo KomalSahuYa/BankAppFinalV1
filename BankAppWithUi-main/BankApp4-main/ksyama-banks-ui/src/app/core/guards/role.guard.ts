@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
+
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class RoleGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
+    private readonly notificationService: NotificationService,
     private readonly router: Router
   ) {}
 
@@ -20,6 +23,7 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
+    this.notificationService.show('You are not authorized to access that page.', 'warning');
     return this.router.createUrlTree(['/dashboard']);
   }
 }

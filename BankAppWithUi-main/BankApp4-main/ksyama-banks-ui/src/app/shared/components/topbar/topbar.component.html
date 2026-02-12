@@ -3,5 +3,5 @@
     <h4 class="mb-0">Bank Management Console</h4>
     <small class="text-muted">Welcome, {{ authService.getUsername() }}</small>
   </div>
-  <button class="btn btn-danger" (click)="logout()">Logout</button>
+  <button class="btn btn-danger" [disabled]="isLoggingOut" (click)="logout()">{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</button>
 </header>

@@ -5,6 +5,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { EmployeeResponse } from '../../../../core/models/account.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { trimmedRequiredValidator } from '../../../../core/validators/form-validators';
 
 @Component({
   selector: 'app-clerk-management',
@@ -17,15 +19,16 @@ export class ClerkManagementComponent implements OnInit {
   errorMessage = '';
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, trimmedRequiredValidator]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    fullName: ['', Validators.required]
+    fullName: ['', [Validators.required, trimmedRequiredValidator]]
   });
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly accountService: AccountService,
-    private readonly apiErrorService: ApiErrorService
+    private readonly apiErrorService: ApiErrorService,
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -41,25 +44,36 @@ export class ClerkManagementComponent implements OnInit {
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    this.accountService.createEmployee({ ...this.form.getRawValue(), role: 'CLERK' }).subscribe({
-      next: () => {
-        this.form.reset({ username: '', password: '', fullName: '' });
-        this.loadEmployees();
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.isSubmitting = false;
-      }
-    });
+    this.accountService
+      .createEmployee({
+        ...this.form.getRawValue(),
+        username: this.form.controls.username.value.trim(),
+        fullName: this.form.controls.fullName.value.trim(),
+        role: 'CLERK'
+      })
+      .subscribe({
+        next: () => {
+          this.form.reset({ username: '', password: '', fullName: '' });
+          this.notificationService.show('Clerk user created successfully.', 'success');
+          this.loadEmployees();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.apiErrorService.getMessage(error);
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
   }
 
-  private loadEmployees(): void {
+  loadEmployees(): void {
     this.loading = true;
     this.accountService.getEmployees().subscribe({
       next: (employees) => {
         this.employees = employees;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
       },
       complete: () => {
         this.loading = false;

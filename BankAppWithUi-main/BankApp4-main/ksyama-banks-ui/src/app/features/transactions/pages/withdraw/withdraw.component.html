@@ -1,19 +1,32 @@
 <div class="card p-3">
   <h4>Withdraw</h4>
+  <p class="text-muted small mb-2">Withdrawals above ₹{{ managerApprovalLimit | number : '1.0-0' }} require manager approval.</p>
   <app-status-message type="success" [message]="successMessage"></app-status-message>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3" novalidate>
     <div class="col-md-6">
-      <label class="form-label">Account Number</label>
-      <input class="form-control" formControlName="accountNumber" />
+      <label class="form-label" for="withdraw-account">Account Number</label>
+      <input id="withdraw-account" class="form-control" formControlName="accountNumber" />
+      <div class="text-danger small mt-1" *ngIf="form.controls.accountNumber.touched && form.controls.accountNumber.hasError('required')">
+        Account number is required.
+      </div>
     </div>
     <div class="col-md-6">
-      <label class="form-label">Amount</label>
-      <input type="number" class="form-control" formControlName="amount" />
+      <label class="form-label" for="withdraw-amount">Amount</label>
+      <input id="withdraw-amount" type="number" min="0.01" step="0.01" class="form-control" formControlName="amount" />
+      <div class="text-danger small mt-1" *ngIf="form.controls.amount.touched && (form.controls.amount.hasError('required') || form.controls.amount.hasError('number'))">
+        Enter a valid numeric amount.
+      </div>
+      <div class="text-danger small mt-1" *ngIf="form.controls.amount.touched && (form.controls.amount.hasError('min') || form.controls.amount.hasError('minAmount'))">
+        Amount must be greater than ₹0.00.
+      </div>
+      <div class="text-warning small mt-1" *ngIf="form.controls.amount.valid && form.controls.amount.value > managerApprovalLimit">
+        This amount will be marked as PENDING_APPROVAL until manager action.
+      </div>
     </div>
     <div class="col-12">
-      <button class="btn btn-primary" [disabled]="isSubmitting" type="submit">{{ isSubmitting ? 'Processing...' : 'Withdraw' }}</button>
+      <button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Processing...' : 'Withdraw' }}</button>
     </div>
   </form>
 </div>
