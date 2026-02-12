@@ -1,0 +1,27 @@
+:root {
+  --ks-primary: #123a8f;
+  --ks-primary-dark: #0d2a66;
+  --ks-accent: #d91f26;
+  --ks-bg: #f4f7fb;
+  --ks-text: #1c2330;
+}
+
+body {
+  background: linear-gradient(140deg, #f4f7fb 0%, #eef3fc 60%, #e7efff 100%);
+  color: var(--ks-text);
+}
+
+.btn-primary {
+  background-color: var(--ks-primary);
+  border-color: var(--ks-primary);
+}
+
+.btn-danger {
+  background-color: var(--ks-accent);
+  border-color: var(--ks-accent);
+}
+
+.card {
+  border: 1px solid #dce6fa;
+  box-shadow: 0 4px 14px rgba(18, 58, 143, 0.08);
+}

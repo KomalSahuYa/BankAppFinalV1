@@ -1,0 +1,7 @@
+<header class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded border">
+  <div>
+    <h4 class="mb-0">Bank Management Console</h4>
+    <small class="text-muted">Welcome, {{ authService.getUsername() }}</small>
+  </div>
+  <button class="btn btn-danger" (click)="logout()">Logout</button>
+</header>

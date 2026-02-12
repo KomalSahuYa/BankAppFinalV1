@@ -1,0 +1,14 @@
+.sidebar {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--ks-primary-dark), var(--ks-primary));
+
+  .nav-link {
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+
+    &:hover,
+    &.active {
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+}

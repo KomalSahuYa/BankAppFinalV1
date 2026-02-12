@@ -1,0 +1,29 @@
+<div class="login-shell d-flex align-items-center justify-content-center">
+  <div class="card p-4 login-card">
+    <h2 class="mb-2">KSYamaBanks</h2>
+    <p class="text-muted mb-3">Internal Staff Login</p>
+
+    <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input class="form-control" formControlName="username" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" formControlName="password" />
+      </div>
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="rememberMe" formControlName="rememberMe" />
+        <label class="form-check-label" for="rememberMe">Remember me on this browser</label>
+      </div>
+
+      <button class="btn btn-primary w-100" [disabled]="isSubmitting" type="submit">
+        {{ isSubmitting ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+  </div>
+</div>

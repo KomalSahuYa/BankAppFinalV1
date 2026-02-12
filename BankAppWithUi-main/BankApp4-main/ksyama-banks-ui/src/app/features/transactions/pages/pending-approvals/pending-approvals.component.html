@@ -1,0 +1,24 @@
+<div class="card p-3">
+  <h4>Pending Withdrawals</h4>
+  <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+  <div *ngIf="loading">Loading pending approvals...</div>
+
+  <table class="table table-sm" *ngIf="!loading">
+    <tr><th>ID</th><th>Account</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+    <tr *ngFor="let txn of pending">
+      <td>{{ txn.id }}</td>
+      <td>{{ txn.accountNumber }}</td>
+      <td>{{ txn.amount }}</td>
+      <td>{{ txn.status }}</td>
+      <td class="d-flex gap-2">
+        <button class="btn btn-success btn-sm" [disabled]="actionInProgressId !== null" (click)="approve(txn.id)">
+          {{ actionInProgressId === txn.id ? 'Approving...' : 'Approve' }}
+        </button>
+        <button class="btn btn-danger btn-sm" [disabled]="actionInProgressId !== null" (click)="reject(txn.id)">
+          {{ actionInProgressId === txn.id ? 'Rejecting...' : 'Reject' }}
+        </button>
+      </td>
+    </tr>
+  </table>
+</div>

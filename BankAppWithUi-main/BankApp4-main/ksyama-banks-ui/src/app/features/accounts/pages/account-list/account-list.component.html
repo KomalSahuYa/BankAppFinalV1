@@ -1,0 +1,24 @@
+<div class="card p-3">
+  <h4>Account List</h4>
+  <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+  <div *ngIf="loading">Loading accounts...</div>
+
+  <div class="table-responsive" *ngIf="!loading">
+    <table class="table table-sm table-striped">
+      <thead>
+      <tr>
+        <th>Account No</th>
+        <th>Holder</th>
+        <th>Balance</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let account of accounts">
+        <td>{{ account.accountNumber }}</td>
+        <td>{{ account.holderName }}</td>
+        <td>{{ account.balance | number : '1.2-2' }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

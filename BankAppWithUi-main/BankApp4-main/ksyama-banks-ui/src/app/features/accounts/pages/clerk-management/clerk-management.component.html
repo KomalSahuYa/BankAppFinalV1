@@ -1,0 +1,27 @@
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card p-3">
+      <h4>Create Clerk</h4>
+      <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+      <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2">
+        <div class="col-12"><input class="form-control" placeholder="Username" formControlName="username" /></div>
+        <div class="col-12"><input class="form-control" type="password" placeholder="Password" formControlName="password" /></div>
+        <div class="col-12"><input class="form-control" placeholder="Full name" formControlName="fullName" /></div>
+        <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting" type="submit">Add Clerk</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card p-3">
+      <h4>Employees</h4>
+      <div *ngIf="loading">Loading employees...</div>
+      <table class="table table-sm" *ngIf="!loading">
+        <tr><th>ID</th><th>Username</th><th>Role</th><th>Name</th></tr>
+        <tr *ngFor="let emp of employees">
+          <td>{{ emp.id }}</td><td>{{ emp.username }}</td><td>{{ emp.role }}</td><td>{{ emp.fullName }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
