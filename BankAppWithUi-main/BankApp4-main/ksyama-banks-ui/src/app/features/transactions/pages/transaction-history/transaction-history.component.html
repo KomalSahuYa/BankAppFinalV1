@@ -2,9 +2,15 @@
   <h4>Transaction History</h4>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
-  <form [formGroup]="form" (ngSubmit)="search()" class="row g-2 mb-3">
-    <div class="col-md-8"><input class="form-control" placeholder="Account Number" formControlName="accountNumber" /></div>
-    <div class="col-md-4"><button class="btn btn-primary w-100" [disabled]="loading">{{ loading ? 'Loading...' : 'Load History' }}</button></div>
+  <form [formGroup]="form" (ngSubmit)="search()" class="row g-2 mb-3" novalidate>
+    <div class="col-md-8">
+      <label class="form-label" for="history-account">Account Number</label>
+      <input id="history-account" class="form-control" placeholder="Account Number" formControlName="accountNumber" />
+      <div class="text-danger small mt-1" *ngIf="form.controls.accountNumber.touched && form.controls.accountNumber.hasError('required')">
+        Account number is required.
+      </div>
+    </div>
+    <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary w-100" [disabled]="loading || form.invalid">{{ loading ? 'Loading...' : 'Load History' }}</button></div>
   </form>
 
   <table class="table table-sm table-striped" *ngIf="transactions.length">

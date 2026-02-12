@@ -1,8 +1,12 @@
+<app-status-message type="danger" [message]="errorMessage"></app-status-message>
 <div class="row g-3">
   <div class="col-md-4">
     <div class="card p-3">
-      <h6 class="text-muted">Pending Approvals</h6>
-      <h2 class="mb-0">{{ pendingCount }}</h2>
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="text-muted">Pending Approvals</h6>
+        <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadPendingCount()">Refresh</button>
+      </div>
+      <h2 class="mb-0">{{ loading ? '...' : pendingCount }}</h2>
     </div>
   </div>
   <div class="col-md-8">
