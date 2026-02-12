@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiErrorService } from '../../../core/services/api-error.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { trimmedRequiredValidator } from '../../../core/validators/form-validators';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +18,7 @@ export class LoginComponent {
   errorMessage = '';
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    username: ['', [Validators.required, trimmedRequiredValidator]],
     password: ['', Validators.required],
     rememberMe: [true]
   });
@@ -25,6 +27,8 @@ export class LoginComponent {
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
     private readonly apiErrorService: ApiErrorService,
+    private readonly notificationService: NotificationService,
+    private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {}
 
@@ -37,23 +41,27 @@ export class LoginComponent {
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    this.authService.login(
-      {
-        username: this.form.controls.username.value,
-        password: this.form.controls.password.value
-      },
-      this.form.controls.rememberMe.value
-    ).subscribe({
-      next: () => {
-        void this.router.navigate(['/dashboard']);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage = this.apiErrorService.getMessage(error);
-        this.isSubmitting = false;
-      },
-      complete: () => {
-        this.isSubmitting = false;
-      }
-    });
+    this.authService
+      .login(
+        {
+          username: this.form.controls.username.value.trim(),
+          password: this.form.controls.password.value
+        },
+        this.form.controls.rememberMe.value
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.show('Welcome. Authentication successful.', 'success');
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
+          void this.router.navigateByUrl(returnUrl);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.apiErrorService.getMessage(error);
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
   }
 }

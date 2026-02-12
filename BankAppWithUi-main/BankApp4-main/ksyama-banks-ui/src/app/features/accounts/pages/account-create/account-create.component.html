@@ -3,17 +3,26 @@
   <app-status-message type="success" [message]="successMessage"></app-status-message>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3" novalidate>
     <div class="col-md-6">
-      <label class="form-label">Holder Name</label>
-      <input class="form-control" formControlName="holderName" />
+      <label class="form-label" for="holder-name">Holder Name</label>
+      <input id="holder-name" class="form-control" formControlName="holderName" />
+      <div class="text-danger small mt-1" *ngIf="form.controls.holderName.touched && form.controls.holderName.hasError('required')">
+        Holder name is required.
+      </div>
     </div>
     <div class="col-md-6">
-      <label class="form-label">Initial Balance</label>
-      <input class="form-control" type="number" formControlName="initialBalance" />
+      <label class="form-label" for="initial-balance">Initial Balance</label>
+      <input id="initial-balance" class="form-control" type="number" min="0.01" step="0.01" formControlName="initialBalance" />
+      <div class="text-danger small mt-1" *ngIf="form.controls.initialBalance.touched && form.controls.initialBalance.hasError('required')">
+        Initial balance is required.
+      </div>
+      <div class="text-danger small mt-1" *ngIf="form.controls.initialBalance.touched && (form.controls.initialBalance.hasError('min') || form.controls.initialBalance.hasError('minAmount'))">
+        Initial balance must be greater than ₹0.00.
+      </div>
     </div>
     <div class="col-12">
-      <button class="btn btn-primary" [disabled]="isSubmitting" type="submit">
+      <button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">
         {{ isSubmitting ? 'Creating...' : 'Create Account' }}
       </button>
     </div>

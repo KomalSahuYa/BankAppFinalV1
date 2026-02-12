@@ -20,7 +20,12 @@ export class AccountListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadAccounts();
+  }
+
+  loadAccounts(): void {
     this.loading = true;
+    this.errorMessage = '';
     this.accountService.getAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;

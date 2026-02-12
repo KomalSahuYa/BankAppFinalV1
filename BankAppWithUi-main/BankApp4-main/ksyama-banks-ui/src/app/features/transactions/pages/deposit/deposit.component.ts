@@ -4,6 +4,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { positiveAmountValidator, trimmedRequiredValidator } from '../../../../core/validators/form-validators';
 
 @Component({
   selector: 'app-deposit',
@@ -15,14 +17,15 @@ export class DepositComponent {
   errorMessage = '';
 
   readonly form = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required],
-    amount: [0, [Validators.required, Validators.min(0.01)]]
+    accountNumber: ['', [Validators.required, trimmedRequiredValidator]],
+    amount: [0, [Validators.required, Validators.min(0.01), positiveAmountValidator(0.01)]]
   });
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly transactionService: TransactionService,
-    private readonly apiErrorService: ApiErrorService
+    private readonly apiErrorService: ApiErrorService,
+    private readonly notificationService: NotificationService
   ) {}
 
   submit(): void {
@@ -31,13 +34,24 @@ export class DepositComponent {
       return;
     }
 
+    const payload = {
+      accountNumber: this.form.controls.accountNumber.value.trim(),
+      amount: this.form.controls.amount.value
+    };
+
+    const confirmed = window.confirm(`Confirm deposit of ₹${payload.amount.toLocaleString('en-IN')} to account ${payload.accountNumber}?`);
+    if (!confirmed) {
+      return;
+    }
+
     this.isSubmitting = true;
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.transactionService.deposit(this.form.getRawValue()).subscribe({
+    this.transactionService.deposit(payload).subscribe({
       next: (res) => {
         this.successMessage = `Deposit transaction #${res.id} completed.`;
+        this.notificationService.show(this.successMessage, 'success');
         this.form.reset({ accountNumber: '', amount: 0 });
       },
       error: (error: HttpErrorResponse) => {

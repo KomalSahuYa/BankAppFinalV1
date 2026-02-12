@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-pending-approvals',
@@ -17,7 +18,8 @@ export class PendingApprovalsComponent implements OnInit {
 
   constructor(
     private readonly transactionService: TransactionService,
-    private readonly apiErrorService: ApiErrorService
+    private readonly apiErrorService: ApiErrorService,
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -29,9 +31,16 @@ export class PendingApprovalsComponent implements OnInit {
       return;
     }
 
+    if (!window.confirm(`Approve withdrawal request #${id}?`)) {
+      return;
+    }
+
     this.actionInProgressId = id;
     this.transactionService.approve(id).subscribe({
-      next: () => this.load(),
+      next: () => {
+        this.pending = this.pending.filter((txn) => txn.id !== id);
+        this.notificationService.show(`Withdrawal request #${id} approved.`, 'success');
+      },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
       },
@@ -46,9 +55,16 @@ export class PendingApprovalsComponent implements OnInit {
       return;
     }
 
+    if (!window.confirm(`Reject withdrawal request #${id}?`)) {
+      return;
+    }
+
     this.actionInProgressId = id;
     this.transactionService.reject(id).subscribe({
-      next: () => this.load(),
+      next: () => {
+        this.pending = this.pending.filter((txn) => txn.id !== id);
+        this.notificationService.show(`Withdrawal request #${id} rejected.`, 'info');
+      },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
       },
@@ -58,7 +74,7 @@ export class PendingApprovalsComponent implements OnInit {
     });
   }
 
-  private load(): void {
+  load(): void {
     this.loading = true;
     this.errorMessage = '';
 

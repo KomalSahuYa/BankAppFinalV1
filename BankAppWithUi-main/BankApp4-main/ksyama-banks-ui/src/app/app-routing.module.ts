@@ -11,6 +11,7 @@ const routes: Routes = [
     path: '',
     component: LayoutComponent,
     canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardHomeComponent },
       { path: 'transactions', loadChildren: () => import('./features/transactions/transactions.module').then((m) => m.TransactionsModule) },

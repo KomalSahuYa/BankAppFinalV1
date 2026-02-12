@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { trimmedRequiredValidator } from '../../../../core/validators/form-validators';
 
 @Component({
   selector: 'app-transaction-history',
@@ -16,7 +17,7 @@ export class TransactionHistoryComponent {
   transactions: TransactionResponse[] = [];
 
   readonly form = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required]
+    accountNumber: ['', [Validators.required, trimmedRequiredValidator]]
   });
 
   constructor(
@@ -26,15 +27,16 @@ export class TransactionHistoryComponent {
   ) {}
 
   search(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.loading) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.loading = true;
     this.errorMessage = '';
+    this.transactions = [];
 
-    this.transactionService.getHistory(this.form.controls.accountNumber.value).subscribe({
+    this.transactionService.getHistory(this.form.controls.accountNumber.value.trim()).subscribe({
       next: (rows) => {
         this.transactions = rows;
       },
