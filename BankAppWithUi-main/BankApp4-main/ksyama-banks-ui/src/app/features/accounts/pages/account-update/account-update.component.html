@@ -1,0 +1,46 @@
+<div class="card p-4 app-card">
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h4 class="mb-1">Update Account Contact Details</h4>
+      <p class="text-muted mb-0">Only email and mobile number can be updated.</p>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" routerLink="/accounts/list">Back</button>
+  </div>
+
+  <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+  <div *ngIf="loading" class="text-muted">Loading account details...</div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="update()" class="row g-3" novalidate>
+    <div class="col-md-6">
+      <label class="form-label">Account Number</label>
+      <input class="form-control" [value]="accountNumber" readonly />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Holder Name</label>
+      <input class="form-control" [value]="holderName" readonly />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">PAN Number</label>
+      <input class="form-control" [value]="panNumber" readonly />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="update-email">Email</label>
+      <input id="update-email" class="form-control" formControlName="email" />
+      <div class="text-danger small mt-1" *ngIf="(form.controls.email.dirty || form.controls.email.touched) && form.controls.email.hasError('required')">Email is required.</div>
+      <div class="text-danger small mt-1" *ngIf="(form.controls.email.dirty || form.controls.email.touched) && form.controls.email.hasError('email')">Enter a valid email address.</div>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="update-mobile">Mobile Number</label>
+      <input id="update-mobile" class="form-control" maxlength="10" formControlName="mobileNumber" />
+      <div class="text-danger small mt-1" *ngIf="(form.controls.mobileNumber.dirty || form.controls.mobileNumber.touched) && form.controls.mobileNumber.hasError('required')">Mobile number is required.</div>
+      <div class="text-danger small mt-1" *ngIf="(form.controls.mobileNumber.dirty || form.controls.mobileNumber.touched) && form.controls.mobileNumber.hasError('pattern')">Mobile number must be 10 digits.</div>
+    </div>
+
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit" [disabled]="isSubmitting || form.invalid">
+        {{ isSubmitting ? 'Updating...' : 'Update Contact Details' }}
+      </button>
+    </div>
+  </form>
+</div>

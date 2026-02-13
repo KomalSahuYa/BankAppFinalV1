@@ -18,6 +18,9 @@ export class AccountCreateComponent {
 
   readonly form = this.fb.nonNullable.group({
     holderName: ['', [Validators.required, trimmedRequiredValidator]],
+    panNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/)]],
+    email: ['', [Validators.required, Validators.email]],
+    mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
     initialBalance: [0, [Validators.required, Validators.min(0.01), positiveAmountValidator(0.01)]]
   });
 
@@ -41,13 +44,16 @@ export class AccountCreateComponent {
     this.accountService
       .createAccount({
         holderName: this.form.controls.holderName.value.trim(),
+        panNumber: this.form.controls.panNumber.value.trim().toUpperCase(),
+        email: this.form.controls.email.value.trim().toLowerCase(),
+        mobileNumber: this.form.controls.mobileNumber.value.trim(),
         initialBalance: this.form.controls.initialBalance.value
       })
       .subscribe({
         next: (response) => {
           this.successMessage = `Account ${response.accountNumber} created successfully.`;
           this.notificationService.show(this.successMessage, 'success');
-          this.form.reset({ holderName: '', initialBalance: 0 });
+          this.form.reset({ holderName: '', panNumber: '', email: '', mobileNumber: '', initialBalance: 0 });
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.apiErrorService.getMessage(error);

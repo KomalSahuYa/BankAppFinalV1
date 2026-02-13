@@ -13,6 +13,7 @@ import com.bankapp.api.dto.AccountUpdateRequest;
 import com.bankapp.api.dto.TransactionResponse;
 import com.bankapp.api.entities.Account;
 import com.bankapp.api.exceptions.AccountNotFoundException;
+import com.bankapp.api.exceptions.DuplicateAccountFieldException;
 import com.bankapp.api.mappers.AccountMapper;
 import com.bankapp.api.repositories.AccountRepository;
 
@@ -28,6 +29,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponse create(AccountCreateRequest req) {
+        validateUniqueCreateFields(req);
 
         String accNo = "ACC-" +
                 UUID.randomUUID().toString().substring(0, 8);
@@ -35,7 +37,10 @@ public class AccountServiceImpl implements AccountService {
         Account acc = new Account(
                 accNo,
                 req.initialBalance(),
-                req.holderName()
+                req.holderName(),
+                req.panNumber(),
+                req.email(),
+                req.mobileNumber()
         );
 
         repository.save(acc);
@@ -70,6 +75,7 @@ public class AccountServiceImpl implements AccountService {
                                   AccountUpdateRequest req) {
 
         Account acc = getAccount(accNo);
+        validateUniqueUpdateFields(accNo, req);
 
         mapper.update(acc, req);
 
@@ -82,6 +88,30 @@ public class AccountServiceImpl implements AccountService {
                 .findByAccountNumberAndActiveTrue(accNo)
                 .orElseThrow(() ->
                         new AccountNotFoundException(accNo));
+    }
+
+    private void validateUniqueCreateFields(AccountCreateRequest req) {
+        if (repository.existsByPanNumber(req.panNumber())) {
+            throw new DuplicateAccountFieldException("PAN number", req.panNumber());
+        }
+
+        if (repository.existsByEmail(req.email())) {
+            throw new DuplicateAccountFieldException("email", req.email());
+        }
+
+        if (repository.existsByMobileNumber(req.mobileNumber())) {
+            throw new DuplicateAccountFieldException("mobile number", req.mobileNumber());
+        }
+    }
+
+    private void validateUniqueUpdateFields(String accNo, AccountUpdateRequest req) {
+        if (repository.existsByEmailAndAccountNumberNot(req.email(), accNo)) {
+            throw new DuplicateAccountFieldException("email", req.email());
+        }
+
+        if (repository.existsByMobileNumberAndAccountNumberNot(req.mobileNumber(), accNo)) {
+            throw new DuplicateAccountFieldException("mobile number", req.mobileNumber());
+        }
     }
     
     @Override

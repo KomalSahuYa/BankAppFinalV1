@@ -26,20 +26,9 @@
 
   <div class="col-md-3">
     <div class="card p-3 app-card h-100">
-      <h6 class="text-muted">Clerk Management</h6>
-      <div class="small">Create clerks: <a routerLink="/accounts/clerks">Open create form</a></div>
-      <div class="small mt-1">Update/Delete clerks: <a routerLink="/accounts/clerks">Open management panel</a></div>
-    </div>
-  </div>
-
-  <div class="col-12">
-    <div class="card p-3 app-card">
-      <h5 class="mb-2">Bank Overview</h5>
-      <div class="small text-muted" *ngIf="loading">Loading account numbers...</div>
-      <div class="small" *ngIf="!loading">
-        <span *ngIf="accounts.length; else noAccounts">{{ accountNumbersDisplay }}</span>
-        <ng-template #noAccounts>null</ng-template>
-      </div>
+      <h6 class="text-muted">Active Clerks</h6>
+      <h2 class="mb-1">{{ loading ? '...' : activeClerkCount }}</h2>
+      <div class="small">Manage clerks: <a routerLink="/accounts/clerks">Open management panel</a></div>
     </div>
   </div>
 </div>

@@ -8,18 +8,18 @@
           <div class="col-12">
             <label class="form-label" for="clerk-username">Username</label>
             <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
-            <div class="text-danger small mt-1" *ngIf="form.controls.username.touched && form.controls.username.hasError('required')">Username is required.</div>
+            <div class="text-danger small mt-1" *ngIf="(form.controls.username.dirty || form.controls.username.touched) && form.controls.username.hasError('required')">Username is required.</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="clerk-password">Password</label>
             <input id="clerk-password" class="form-control" type="password" placeholder="Password" formControlName="password" />
-            <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('required')">Password is required.</div>
-            <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('minlength')">Password must be at least 6 characters.</div>
+            <div class="text-danger small mt-1" *ngIf="(form.controls.password.dirty || form.controls.password.touched) && form.controls.password.hasError('required')">Password is required.</div>
+            <div class="text-danger small mt-1" *ngIf="(form.controls.password.dirty || form.controls.password.touched) && form.controls.password.hasError('minlength')">Password must be at least 6 characters.</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="clerk-full-name">Full name</label>
             <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
-            <div class="text-danger small mt-1" *ngIf="form.controls.fullName.touched && form.controls.fullName.hasError('required')">Full name is required.</div>
+            <div class="text-danger small mt-1" *ngIf="(form.controls.fullName.dirty || form.controls.fullName.touched) && form.controls.fullName.hasError('required')">Full name is required.</div>
           </div>
           <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
         </form>
@@ -46,7 +46,7 @@
             </td>
             <td class="text-nowrap">
               <ng-container *ngIf="editingEmployeeId !== emp.id; else editUserActions">
-                <button class="btn btn-outline-primary btn-sm" (click)="startEdit(emp)">Edit</button>
+                <button class="btn btn-action-edit btn-sm" (click)="startEdit(emp)">Edit</button>
               </ng-container>
               <ng-template #editUserActions>
                 <button class="btn btn-primary btn-sm me-2" [disabled]="actionInProgress || editForm.invalid" (click)="updateEmployee(emp)">Save</button>
@@ -65,7 +65,7 @@
             <td>{{ emp.id }}</td>
             <td>{{ emp.username }}</td>
             <td>{{ emp.role }}</td>
-            <td><button class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="deleteEmployee(emp)">Delete</button></td>
+            <td><button class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="deleteEmployee(emp)">Delete</button></td>
           </tr>
         </table>
       </div>

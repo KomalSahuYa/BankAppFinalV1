@@ -7,9 +7,10 @@ import { SharedModule } from '../../shared/shared.module';
 import { AccountListComponent } from './pages/account-list/account-list.component';
 import { AccountCreateComponent } from './pages/account-create/account-create.component';
 import { ClerkManagementComponent } from './pages/clerk-management/clerk-management.component';
+import { AccountUpdateComponent } from './pages/account-update/account-update.component';
 
 @NgModule({
-  declarations: [AccountListComponent, AccountCreateComponent, ClerkManagementComponent],
+  declarations: [AccountListComponent, AccountCreateComponent, ClerkManagementComponent, AccountUpdateComponent],
   imports: [CommonModule, ReactiveFormsModule, AccountsRoutingModule, SharedModule]
 })
 export class AccountsModule {}

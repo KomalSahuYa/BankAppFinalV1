@@ -14,6 +14,7 @@ import { AccountResponse } from '../../../../core/models/account.model';
 export class ManagerDashboardComponent implements OnInit {
   pendingCount = 0;
   todayTransactionCount = 0;
+  activeClerkCount = 0;
   accounts: AccountResponse[] = [];
   loading = false;
   errorMessage = '';
@@ -28,21 +29,19 @@ export class ManagerDashboardComponent implements OnInit {
     this.loadOverview();
   }
 
-  get accountNumbersDisplay(): string {
-    return this.accounts.map((account) => account.accountNumber).join(', ');
-  }
-
   loadOverview(): void {
     this.loading = true;
     this.errorMessage = '';
     forkJoin({
       pending: this.transactionService.getPendingApprovals(),
       accounts: this.accountService.getAccounts(),
+      employees: this.accountService.getEmployees(),
       transactions: this.transactionService.getTodayTransactions()
     }).subscribe({
-      next: ({ pending, accounts, transactions }) => {
+      next: ({ pending, accounts, employees, transactions }) => {
         this.pendingCount = pending.length;
         this.accounts = accounts;
+        this.activeClerkCount = employees.filter((employee) => employee.role === 'CLERK').length;
         this.todayTransactionCount = transactions.length;
       },
       error: (error: HttpErrorResponse) => {
