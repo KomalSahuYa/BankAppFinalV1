@@ -11,14 +11,14 @@ describe('PermissionService', () => {
     return new PermissionService(authServiceStub);
   };
 
-  it('should allow account operations for both manager and clerk', () => {
+  it('should allow manager-only operations only for manager role', () => {
     expect(createService(true, false).canCreateAccount()).toBeTrue();
-    expect(createService(false, true).canCreateAccount()).toBeTrue();
-    expect(createService(false, false).canCreateAccount()).toBeFalse();
+    expect(createService(false, true).canCreateAccount()).toBeFalse();
   });
 
-  it('should allow employee management only to manager role', () => {
-    expect(createService(true, false).canCreateUser()).toBeTrue();
-    expect(createService(false, true).canCreateUser()).toBeFalse();
+  it('should allow transactional operations for both manager and clerk', () => {
+    expect(createService(true, false).canProcessDeposit()).toBeTrue();
+    expect(createService(false, true).canProcessDeposit()).toBeTrue();
+    expect(createService(false, false).canProcessDeposit()).toBeFalse();
   });
 });

@@ -8,13 +8,11 @@ import { AuthService } from './auth.service';
 export class PermissionService {
   constructor(private readonly authService: AuthService) {}
 
-  // Both operational roles can manage customer accounts.
-  canCreateAccount(): boolean { return this.authService.isClerk() || this.authService.isManager(); }
-  canViewAllAccounts(): boolean { return this.authService.isClerk() || this.authService.isManager(); }
-  canDeleteAccount(): boolean { return this.authService.isClerk() || this.authService.isManager(); }
-  canUpdateAccount(): boolean { return this.authService.isClerk() || this.authService.isManager(); }
+  canCreateAccount(): boolean { return this.authService.isManager(); }
+  canViewAllAccounts(): boolean { return this.authService.isManager(); }
+  canDeleteAccount(): boolean { return this.authService.isManager(); }
+  canUpdateAccount(): boolean { return this.authService.isManager(); }
 
-  // Employee (clerk) management remains manager-only.
   canCreateUser(): boolean { return this.authService.isManager(); }
   canViewAllUsers(): boolean { return this.authService.isManager(); }
   canUpdateUser(): boolean { return this.authService.isManager(); }
@@ -27,7 +25,10 @@ export class PermissionService {
   canRejectWithdrawal(): boolean { return this.authService.isManager(); }
 
   canViewTransactionHistory(accountId?: string): boolean {
-    return this.authService.isClerk() || this.authService.isManager();
+    if (this.authService.isManager()) {
+      return true;
+    }
+    return this.authService.isClerk();
   }
 
   canViewApprovalWorkflow(): boolean { return this.authService.isManager(); }

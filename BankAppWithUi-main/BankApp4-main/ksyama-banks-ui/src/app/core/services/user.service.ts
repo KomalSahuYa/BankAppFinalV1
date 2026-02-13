@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
@@ -22,22 +22,15 @@ export class UserService {
 
   constructor(private readonly http: HttpClient) {}
 
-  createUser(userData: any): Observable<User> { return this.http.post<User>(this.apiUrl, userData); }
-  getAllUsers(): Observable<User[]> { return this.http.get<User[]>(this.apiUrl); }
-
-  getAllClerks(): Observable<User[]> {
-    return this.getAllUsers().pipe(map((users) => users.filter((user) => user.role === 'CLERK')));
-  }
-
-  getActiveClerks(): Observable<User[]> {
-    // API currently returns active employees only.
-    return this.getAllClerks();
-  }
-
+  createUser(userData: any): Observable<User> { return this.http.post<User>(`${this.apiUrl}`, userData); }
+  getAllUsers(): Observable<User[]> { return this.http.get<User[]>(`${this.apiUrl}`); }
+  getAllClerks(): Observable<User[]> { return this.http.get<User[]>(`${this.apiUrl}?role=CLERK`); }
+  getActiveClerks(): Observable<User[]> { return this.http.get<User[]>(`${this.apiUrl}?role=CLERK&active=true`); }
   updateUser(id: number, userData: any): Observable<User> { return this.http.put<User>(`${this.apiUrl}/${id}`, userData); }
-  deactivateUser(id: number): Observable<void> { return this.http.delete<void>(`${this.apiUrl}/${id}`); }
+  deactivateUser(id: number): Observable<void> { return this.http.put<void>(`${this.apiUrl}/${id}/deactivate`, {}); }
 
   checkUsernameExists(username: string): Observable<boolean> {
-    return this.getAllUsers().pipe(map((users) => users.some((user) => user.username === username)));
+    const params = new HttpParams().set('username', username);
+    return this.http.get<boolean>(`${this.apiUrl}/check-username`, { params });
   }
 }

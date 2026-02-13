@@ -5,7 +5,6 @@ import { AccountService } from '../../../../core/services/account.service';
 import { AccountResponse } from '../../../../core/models/account.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PermissionService } from '../../../../core/services/permission.service';
-import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-account-list',
@@ -21,7 +20,6 @@ export class AccountListComponent implements OnInit {
   constructor(
     private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
-    private readonly notificationService: NotificationService,
     public readonly permissionService: PermissionService
   ) {}
 

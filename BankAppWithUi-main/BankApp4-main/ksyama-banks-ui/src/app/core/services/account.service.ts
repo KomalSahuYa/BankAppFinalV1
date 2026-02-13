@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
@@ -35,12 +35,30 @@ export class AccountService {
     return this.http.put<AccountResponse>(`${this.accountsUrl}/${accountNumber}`, request);
   }
 
-  deleteAccount(accountNumber: string): Observable<void> {
-    return this.http.delete<void>(`${this.accountsUrl}/${accountNumber}`);
+  deactivateAccount(id: number): Observable<void> {
+    return this.http.put<void>(`${this.accountsUrl}/${id}/deactivate`, {});
+  }
+
+  getAccountById(id: number): Observable<AccountResponse> {
+    return this.http.get<AccountResponse>(`${this.accountsUrl}/${id}`);
   }
 
   getAccountByNumber(accountNumber: string): Observable<AccountResponse> {
     return this.http.get<AccountResponse>(`${this.accountsUrl}/${accountNumber}`);
+  }
+
+  searchAccountsByName(name: string): Observable<AccountResponse[]> {
+    const params = new HttpParams().set('name', name);
+    return this.http.get<AccountResponse[]>(`${this.accountsUrl}/search`, { params });
+  }
+
+  getTopAccounts(limit = 5): Observable<AccountResponse[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<AccountResponse[]>(`${this.accountsUrl}/top`, { params });
+  }
+
+  validateAccountNumber(accountNumber: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.accountsUrl}/validate/${accountNumber}`);
   }
 
   getAccountFull(accountNumber: string): Observable<AccountFullResponse> {

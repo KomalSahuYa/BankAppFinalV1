@@ -1,25 +1,28 @@
 <div *ngIf="permissionService.canViewAllUsers(); else noUserAccess">
-  <div class="row g-3">
-    <div class="col-lg-5">
-      <div class="card p-3">
-        <h4>Create Clerk</h4>
-        <app-status-message type="danger" [message]="errorMessage"></app-status-message>
-        <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2" novalidate>
-          <div class="col-12">
-            <label class="form-label" for="clerk-username">Username</label>
-            <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="clerk-password">Password</label>
-            <input id="clerk-password" class="form-control" type="password" placeholder="Password" formControlName="password" />
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="clerk-full-name">Full name</label>
-            <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
-          </div>
-          <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
-        </form>
-      </div>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card p-3">
+      <h4>Create Clerk</h4>
+      <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+      <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2" novalidate>
+        <div class="col-12">
+          <label class="form-label" for="clerk-username">Username</label>
+          <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
+          <div class="text-danger small mt-1" *ngIf="form.controls.username.touched && form.controls.username.hasError('required')">Username is required.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="clerk-password">Password</label>
+          <input id="clerk-password" class="form-control" type="password" placeholder="Password" formControlName="password" />
+          <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('required')">Password is required.</div>
+          <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('minlength')">Password must be at least 6 characters.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="clerk-full-name">Full name</label>
+          <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
+          <div class="text-danger small mt-1" *ngIf="form.controls.fullName.touched && form.controls.fullName.hasError('required')">Full name is required.</div>
+        </div>
+        <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
+      </form>
     </div>
 
     <div class="col-lg-7">
@@ -66,4 +69,5 @@
   </div>
 </div>
 
+</div>
 <ng-template #noUserAccess><p class="text-danger">You are not authorized to manage users.</p></ng-template>
