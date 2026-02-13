@@ -1,14 +1,24 @@
 .sidebar {
-  min-height: 100vh;
-  background: linear-gradient(180deg, var(--ks-primary-dark), var(--ks-primary));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 
   .nav-link {
-    border-radius: 6px;
-    margin-bottom: 0.4rem;
+    color: #334155;
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    font-weight: 500;
+    border: 1px solid transparent;
 
     &:hover,
     &.active {
-      background: rgba(255, 255, 255, 0.18);
+      color: #0f172a;
+      background: #eff6ff;
+      border-color: #bfdbfe;
     }
   }
 }

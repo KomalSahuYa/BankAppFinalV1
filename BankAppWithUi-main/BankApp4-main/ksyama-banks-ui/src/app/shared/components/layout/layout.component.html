@@ -1,11 +1,9 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-md-3 p-0">
-      <app-sidebar></app-sidebar>
-    </div>
-    <div class="col-lg-10 col-md-9 p-4">
-      <app-topbar></app-topbar>
+<div class="container-fluid py-3">
+  <div class="app-shell mx-auto">
+    <app-topbar></app-topbar>
+    <app-sidebar></app-sidebar>
+    <main class="mt-4">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
 </div>
