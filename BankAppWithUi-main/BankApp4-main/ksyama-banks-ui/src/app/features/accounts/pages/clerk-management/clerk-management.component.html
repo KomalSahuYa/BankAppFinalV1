@@ -1,68 +1,75 @@
 <div *ngIf="permissionService.canViewAllUsers(); else noUserAccess">
-<div class="row g-3">
-  <div class="col-lg-5">
-    <div class="card p-3 app-card">
-      <h4>Create Clerk</h4>
-      <app-status-message type="danger" [message]="errorMessage"></app-status-message>
-      <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2" novalidate>
-        <div class="col-12">
-          <label class="form-label" for="clerk-username">Username</label>
-          <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
-          <div class="text-danger small mt-1" *ngIf="form.controls.username.touched && form.controls.username.hasError('required')">Username is required.</div>
-        </div>
-        <div class="col-12">
-          <label class="form-label" for="clerk-password">Password</label>
-          <input id="clerk-password" class="form-control" type="password" placeholder="Password" formControlName="password" />
-          <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('required')">Password is required.</div>
-          <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('minlength')">Password must be at least 6 characters.</div>
-        </div>
-        <div class="col-12">
-          <label class="form-label" for="clerk-full-name">Full name</label>
-          <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
-          <div class="text-danger small mt-1" *ngIf="form.controls.fullName.touched && form.controls.fullName.hasError('required')">Full name is required.</div>
-        </div>
-        <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
-      </form>
-    </div>
-  </div>
-
-  <div class="col-lg-7">
-    <div class="card p-3 app-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4>Employees</h4>
-        <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadEmployees()">Refresh</button>
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card p-3 app-card h-100">
+        <h4>Create Clerk</h4>
+        <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+        <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2" novalidate>
+          <div class="col-12">
+            <label class="form-label" for="clerk-username">Username</label>
+            <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
+            <div class="text-danger small mt-1" *ngIf="form.controls.username.touched && form.controls.username.hasError('required')">Username is required.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="clerk-password">Password</label>
+            <input id="clerk-password" class="form-control" type="password" placeholder="Password" formControlName="password" />
+            <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('required')">Password is required.</div>
+            <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('minlength')">Password must be at least 6 characters.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="clerk-full-name">Full name</label>
+            <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
+            <div class="text-danger small mt-1" *ngIf="form.controls.fullName.touched && form.controls.fullName.hasError('required')">Full name is required.</div>
+          </div>
+          <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
+        </form>
       </div>
-      <div *ngIf="loading">Loading employees...</div>
-      <table class="table table-sm align-middle" *ngIf="!loading">
-        <tr><th>ID</th><th>Username</th><th>Role</th><th>Name</th><th>Actions</th></tr>
-        <tr *ngFor="let emp of employees">
-          <td>{{ emp.id }}</td>
-          <td>{{ emp.username }}</td>
-          <td>{{ emp.role }}</td>
-          <td>
-            <ng-container *ngIf="editingEmployeeId !== emp.id; else editNameMode">{{ emp.fullName }}</ng-container>
-            <ng-template #editNameMode>
-              <input class="form-control form-control-sm" [formControl]="editForm.controls.fullName" />
-            </ng-template>
-          </td>
-          <td class="text-nowrap">
-            <ng-container *ngIf="emp.role === 'CLERK'; else noActions">
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card p-3 app-card mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Update Clerk</h4>
+          <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadEmployees()">Refresh</button>
+        </div>
+        <div *ngIf="loading">Loading employees...</div>
+        <table class="table table-sm align-middle" *ngIf="!loading">
+          <tr><th>ID</th><th>Username</th><th>Name</th><th>Actions</th></tr>
+          <tr *ngFor="let emp of clerks">
+            <td>{{ emp.id }}</td>
+            <td>{{ emp.username }}</td>
+            <td>
+              <ng-container *ngIf="editingEmployeeId !== emp.id; else editNameMode">{{ emp.fullName }}</ng-container>
+              <ng-template #editNameMode>
+                <input class="form-control form-control-sm" [formControl]="editForm.controls.fullName" />
+              </ng-template>
+            </td>
+            <td class="text-nowrap">
               <ng-container *ngIf="editingEmployeeId !== emp.id; else editUserActions">
-                <button class="btn btn-outline-primary btn-sm me-2" (click)="startEdit(emp)">Edit</button>
-                <button class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="deleteEmployee(emp)">Delete</button>
+                <button class="btn btn-outline-primary btn-sm" (click)="startEdit(emp)">Edit</button>
               </ng-container>
               <ng-template #editUserActions>
                 <button class="btn btn-primary btn-sm me-2" [disabled]="actionInProgress || editForm.invalid" (click)="updateEmployee(emp)">Save</button>
                 <button class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="cancelEdit()">Cancel</button>
               </ng-template>
-            </ng-container>
-            <ng-template #noActions><span class="text-muted small">Manager account</span></ng-template>
-          </td>
-        </tr>
-      </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card p-3 app-card">
+        <h4>Delete Clerk</h4>
+        <table class="table table-sm align-middle mb-0" *ngIf="!loading">
+          <tr><th>ID</th><th>Username</th><th>Role</th><th>Action</th></tr>
+          <tr *ngFor="let emp of clerks">
+            <td>{{ emp.id }}</td>
+            <td>{{ emp.username }}</td>
+            <td>{{ emp.role }}</td>
+            <td><button class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="deleteEmployee(emp)">Delete</button></td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
-</div>
-
 </div>
 <ng-template #noUserAccess><p class="text-danger">You are not authorized to manage users.</p></ng-template>

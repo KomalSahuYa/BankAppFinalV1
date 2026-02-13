@@ -1,5 +1,9 @@
-<div class="card p-3">
-  <h4>Deposit</h4>
+<div class="card p-3 app-card">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">Deposit</h4>
+    <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="isSubmitting" (click)="refreshSection()">Refresh</button>
+  </div>
+
   <app-status-message type="success" [message]="successMessage"></app-status-message>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
@@ -21,8 +25,9 @@
         Amount must be greater than ₹0.00.
       </div>
     </div>
-    <div class="col-12">
+    <div class="col-12 d-flex gap-2">
       <button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Processing...' : 'Deposit' }}</button>
+      <button class="btn btn-outline-secondary" type="button" [disabled]="isSubmitting" (click)="refreshSection()">Reset</button>
     </div>
   </form>
 </div>

@@ -6,7 +6,8 @@ import { NotificationService } from '../../../core/services/notification.service
 
 @Component({
   selector: 'app-topbar',
-  templateUrl: './topbar.component.html'
+  templateUrl: './topbar.component.html',
+  styleUrls: ['./topbar.component.scss']
 })
 export class TopbarComponent {
   isLoggingOut = false;

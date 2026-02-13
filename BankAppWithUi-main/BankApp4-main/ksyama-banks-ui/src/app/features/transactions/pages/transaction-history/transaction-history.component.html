@@ -23,4 +23,8 @@
       <td>{{ txn.timestamp | date : 'medium' }}</td>
     </tr>
   </table>
+
+  <div class="text-muted fw-semibold" *ngIf="hasSearched && !loading && !errorMessage && !transactions.length">
+    null
+  </div>
 </div>
