@@ -18,6 +18,9 @@ export class ClerkManagementComponent implements OnInit {
   loading = false;
   isSubmitting = false;
   errorMessage = '';
+  editingEmployeeId: number | null = null;
+  editFullName = '';
+  editRole: 'CLERK' | 'MANAGER' = 'CLERK';
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
@@ -68,6 +71,54 @@ export class ClerkManagementComponent implements OnInit {
           this.isSubmitting = false;
         }
       });
+  }
+
+  startEdit(employee: EmployeeResponse): void {
+    this.editingEmployeeId = employee.id;
+    this.editFullName = employee.fullName;
+    this.editRole = employee.role;
+  }
+
+  cancelEdit(): void {
+    this.editingEmployeeId = null;
+    this.editFullName = '';
+    this.editRole = 'CLERK';
+  }
+
+  saveEdit(employee: EmployeeResponse): void {
+    const fullName = this.editFullName.trim();
+    if (!fullName) {
+      this.notificationService.show('Full name is required.', 'warning');
+      return;
+    }
+
+    this.accountService.updateEmployee(employee.id, { fullName, role: this.editRole }).subscribe({
+      next: () => {
+        this.notificationService.show('Employee updated successfully.', 'success');
+        this.cancelEdit();
+        this.loadEmployees();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      }
+    });
+  }
+
+  deleteEmployee(employee: EmployeeResponse): void {
+    const confirmed = window.confirm(`Deactivate employee ${employee.username}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.accountService.deleteEmployee(employee.id).subscribe({
+      next: () => {
+        this.notificationService.show('Employee deactivated successfully.', 'success');
+        this.loadEmployees();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      }
+    });
   }
 
   loadEmployees(): void {

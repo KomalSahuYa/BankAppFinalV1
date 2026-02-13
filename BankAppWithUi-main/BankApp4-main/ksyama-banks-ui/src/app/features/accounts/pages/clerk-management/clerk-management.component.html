@@ -24,21 +24,47 @@
         <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
       </form>
     </div>
-  </div>
 
-  <div class="col-lg-7">
-    <div class="card p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4>Employees</h4>
-        <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadEmployees()">Refresh</button>
+    <div class="col-lg-7">
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Employees</h4>
+          <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadEmployees()">Refresh</button>
+        </div>
+        <div *ngIf="loading">Loading employees...</div>
+        <table class="table table-sm align-middle" *ngIf="!loading">
+          <tr><th>ID</th><th>Username</th><th>Role</th><th>Name</th><th>Actions</th></tr>
+          <tr *ngFor="let emp of employees">
+            <td>{{ emp.id }}</td>
+            <td>{{ emp.username }}</td>
+            <td>
+              <ng-container *ngIf="editingEmployeeId === emp.id; else roleRead">
+                <select class="form-select form-select-sm" [(ngModel)]="editRole">
+                  <option value="CLERK">CLERK</option>
+                  <option value="MANAGER">MANAGER</option>
+                </select>
+              </ng-container>
+              <ng-template #roleRead>{{ emp.role }}</ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="editingEmployeeId === emp.id; else nameRead">
+                <input class="form-control form-control-sm" [(ngModel)]="editFullName" />
+              </ng-container>
+              <ng-template #nameRead>{{ emp.fullName }}</ng-template>
+            </td>
+            <td>
+              <ng-container *ngIf="editingEmployeeId === emp.id; else manageButtons">
+                <button class="btn btn-success btn-sm me-2" (click)="saveEdit(emp)">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+              </ng-container>
+              <ng-template #manageButtons>
+                <button class="btn btn-primary btn-sm me-2" (click)="startEdit(emp)">Update</button>
+                <button class="btn btn-danger btn-sm" (click)="deleteEmployee(emp)">Deactivate</button>
+              </ng-template>
+            </td>
+          </tr>
+        </table>
       </div>
-      <div *ngIf="loading">Loading employees...</div>
-      <table class="table table-sm" *ngIf="!loading">
-        <tr><th>ID</th><th>Username</th><th>Role</th><th>Name</th></tr>
-        <tr *ngFor="let emp of employees">
-          <td>{{ emp.id }}</td><td>{{ emp.username }}</td><td>{{ emp.role }}</td><td>{{ emp.fullName }}</td>
-        </tr>
-      </table>
     </div>
   </div>
 </div>

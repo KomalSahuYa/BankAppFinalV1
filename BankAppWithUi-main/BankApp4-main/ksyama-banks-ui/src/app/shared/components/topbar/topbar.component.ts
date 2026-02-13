@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { PermissionService } from '../../../core/services/permission.service';
 
 @Component({
   selector: 'app-topbar',
@@ -13,6 +14,7 @@ export class TopbarComponent {
 
   constructor(
     public readonly authService: AuthService,
+    public readonly permissionService: PermissionService,
     private readonly notificationService: NotificationService,
     private readonly router: Router
   ) {}

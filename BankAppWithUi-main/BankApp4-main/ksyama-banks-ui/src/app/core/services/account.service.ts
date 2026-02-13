@@ -72,4 +72,12 @@ export class AccountService {
   createEmployee(request: EmployeeCreateRequest): Observable<EmployeeResponse> {
     return this.http.post<EmployeeResponse>(this.employeesUrl, request);
   }
+
+  updateEmployee(id: number, payload: { fullName: string; role: 'CLERK' | 'MANAGER' }): Observable<EmployeeResponse> {
+    return this.http.put<EmployeeResponse>(`${this.employeesUrl}/${id}`, payload);
+  }
+
+  deleteEmployee(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.employeesUrl}/${id}`);
+  }
 }
