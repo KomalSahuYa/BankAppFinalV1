@@ -13,6 +13,16 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByAccountNumberAndActiveTrue(String accNo);
 
+    boolean existsByPanNumber(String panNumber);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByMobileNumber(String mobileNumber);
+
+    boolean existsByEmailAndAccountNumberNot(String email, String accountNumber);
+
+    boolean existsByMobileNumberAndAccountNumberNot(String mobileNumber, String accountNumber);
+
     List<Account> findAllByActiveTrue();
 
    

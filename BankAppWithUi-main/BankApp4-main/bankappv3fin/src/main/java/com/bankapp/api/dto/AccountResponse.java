@@ -7,6 +7,9 @@ public record AccountResponse(
         Long id,
         String accountNumber,
         BigDecimal balance,
-        String holderName
+        String holderName,
+        String panNumber,
+        String email,
+        String mobileNumber
 
 ) {}

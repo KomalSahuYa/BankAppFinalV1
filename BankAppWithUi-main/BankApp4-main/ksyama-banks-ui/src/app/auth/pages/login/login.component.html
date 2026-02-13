@@ -19,7 +19,7 @@
           <div class="mb-3">
             <label class="form-label" for="username">Username</label>
             <input id="username" class="form-control" formControlName="username" autocomplete="username" />
-            <div class="text-danger small mt-1" *ngIf="form.controls.username.touched && form.controls.username.hasError('required')">
+            <div class="text-danger small mt-1" *ngIf="(form.controls.username.dirty || form.controls.username.touched) && form.controls.username.hasError('required')">
               Username is required.
             </div>
           </div>
@@ -27,7 +27,7 @@
           <div class="mb-3">
             <label class="form-label" for="password">Password</label>
             <input id="password" type="password" class="form-control" formControlName="password" autocomplete="current-password" />
-            <div class="text-danger small mt-1" *ngIf="form.controls.password.touched && form.controls.password.hasError('required')">
+            <div class="text-danger small mt-1" *ngIf="(form.controls.password.dirty || form.controls.password.touched) && form.controls.password.hasError('required')">
               Password is required.
             </div>
           </div>

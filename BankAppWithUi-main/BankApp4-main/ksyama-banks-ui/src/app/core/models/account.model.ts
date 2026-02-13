@@ -3,15 +3,22 @@ export interface AccountResponse {
   accountNumber: string;
   balance: number;
   holderName: string;
+  panNumber: string;
+  email: string;
+  mobileNumber: string;
 }
 
 export interface AccountCreateRequest {
   holderName: string;
+  panNumber: string;
+  email: string;
+  mobileNumber: string;
   initialBalance: number;
 }
 
 export interface AccountUpdateRequest {
-  holderName: string;
+  email: string;
+  mobileNumber: string;
 }
 
 export interface AccountFullResponse extends AccountResponse {

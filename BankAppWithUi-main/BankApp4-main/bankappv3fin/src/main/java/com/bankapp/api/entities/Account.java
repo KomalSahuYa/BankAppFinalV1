@@ -34,6 +34,15 @@ public class Account {
 
     private String holderName;
 
+    @Column(unique = true, nullable = false, length = 10)
+    private String panNumber;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(unique = true, nullable = false, length = 10)
+    private String mobileNumber;
+
     @OneToMany(mappedBy = "account",
                fetch = FetchType.LAZY)
     private List<Transaction> transactions;
@@ -42,10 +51,16 @@ public class Account {
 
     public Account(String accountNumber,
                    BigDecimal balance,
-                   String holderName) {
+                   String holderName,
+                   String panNumber,
+                   String email,
+                   String mobileNumber) {
 
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.holderName = holderName;
+        this.panNumber = panNumber;
+        this.email = email;
+        this.mobileNumber = mobileNumber;
     }
 }

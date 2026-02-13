@@ -13,12 +13,16 @@ public class AccountMapper {
                 acc.getId(),
                 acc.getAccountNumber(),
                 acc.getBalance(),
-                acc.getHolderName()
+                acc.getHolderName(),
+                acc.getPanNumber(),
+                acc.getEmail(),
+                acc.getMobileNumber()
         );
     }
 
     // update helper (record → entity)
     public void update(Account acc, AccountUpdateRequest req) {
-        acc.setHolderName(req.holderName());
+        acc.setEmail(req.email());
+        acc.setMobileNumber(req.mobileNumber());
     }
 }
