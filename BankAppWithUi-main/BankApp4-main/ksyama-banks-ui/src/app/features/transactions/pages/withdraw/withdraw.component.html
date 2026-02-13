@@ -21,8 +21,8 @@
       <div class="text-danger small mt-1" *ngIf="form.controls.amount.touched && (form.controls.amount.hasError('min') || form.controls.amount.hasError('minAmount'))">
         Amount must be greater than ₹0.00.
       </div>
-      <div class="text-warning small mt-1" *ngIf="form.controls.amount.valid && form.controls.amount.value > managerApprovalLimit">
-        This amount will be marked as PENDING_APPROVAL until manager action.
+      <div class="text-warning small mt-1" *ngIf="getAmountWarning()">
+        {{ getAmountWarning() }}
       </div>
     </div>
     <div class="col-12">

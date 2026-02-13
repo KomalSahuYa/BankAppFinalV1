@@ -7,6 +7,7 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { EmployeeResponse } from '../../../../core/models/account.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { trimmedRequiredValidator } from '../../../../core/validators/form-validators';
+import { PermissionService } from '../../../../core/services/permission.service';
 
 @Component({
   selector: 'app-clerk-management',
@@ -28,11 +29,14 @@ export class ClerkManagementComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    public readonly permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
-    this.loadEmployees();
+    if (this.permissionService.canViewAllUsers()) {
+      this.loadEmployees();
+    }
   }
 
   createClerk(): void {

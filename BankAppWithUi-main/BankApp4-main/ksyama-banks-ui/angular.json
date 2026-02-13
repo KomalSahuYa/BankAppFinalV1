@@ -31,7 +31,8 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              "@fortawesome/fontawesome-free/css/all.min.css"
             ],
             "scripts": []
           },

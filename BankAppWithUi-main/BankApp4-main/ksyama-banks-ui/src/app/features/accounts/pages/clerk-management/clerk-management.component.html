@@ -1,3 +1,4 @@
+<div *ngIf="permissionService.canViewAllUsers(); else noUserAccess">
 <div class="row g-3">
   <div class="col-lg-5">
     <div class="card p-3">
@@ -41,3 +42,6 @@
     </div>
   </div>
 </div>
+
+</div>
+<ng-template #noUserAccess><p class="text-danger">You are not authorized to manage users.</p></ng-template>
