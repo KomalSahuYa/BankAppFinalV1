@@ -23,12 +23,24 @@ export class AccountService {
     return this.http.get<AccountResponse[]>(this.accountsUrl);
   }
 
+  getAllAccounts(): Observable<AccountResponse[]> {
+    return this.getAccounts();
+  }
+
   createAccount(request: AccountCreateRequest): Observable<AccountResponse> {
     return this.http.post<AccountResponse>(this.accountsUrl, request);
   }
 
   updateAccount(accountNumber: string, request: AccountUpdateRequest): Observable<AccountResponse> {
     return this.http.put<AccountResponse>(`${this.accountsUrl}/${accountNumber}`, request);
+  }
+
+  deleteAccount(accountNumber: string): Observable<void> {
+    return this.http.delete<void>(`${this.accountsUrl}/${accountNumber}`);
+  }
+
+  getAccountByNumber(accountNumber: string): Observable<AccountResponse> {
+    return this.http.get<AccountResponse>(`${this.accountsUrl}/${accountNumber}`);
   }
 
   getAccountFull(accountNumber: string): Observable<AccountFullResponse> {
@@ -41,5 +53,13 @@ export class AccountService {
 
   createEmployee(request: EmployeeCreateRequest): Observable<EmployeeResponse> {
     return this.http.post<EmployeeResponse>(this.employeesUrl, request);
+  }
+
+  updateEmployee(id: number, payload: { fullName: string; role: 'CLERK' | 'MANAGER' }): Observable<EmployeeResponse> {
+    return this.http.put<EmployeeResponse>(`${this.employeesUrl}/${id}`, payload);
+  }
+
+  deleteEmployee(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.employeesUrl}/${id}`);
   }
 }

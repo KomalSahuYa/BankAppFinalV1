@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AccountsRoutingModule } from './accounts-routing.module';
 import { SharedModule } from '../../shared/shared.module';
@@ -10,6 +10,6 @@ import { ClerkManagementComponent } from './pages/clerk-management/clerk-managem
 
 @NgModule({
   declarations: [AccountListComponent, AccountCreateComponent, ClerkManagementComponent],
-  imports: [CommonModule, ReactiveFormsModule, AccountsRoutingModule, SharedModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AccountsRoutingModule, SharedModule]
 })
 export class AccountsModule {}

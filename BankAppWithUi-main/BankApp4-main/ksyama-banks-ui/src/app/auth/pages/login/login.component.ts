@@ -52,8 +52,16 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           this.notificationService.show('Welcome. Authentication successful.', 'success');
-          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
-          void this.router.navigateByUrl(returnUrl);
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          if (returnUrl) {
+            void this.router.navigateByUrl(returnUrl);
+          } else if (this.authService.isManager()) {
+            void this.router.navigate(['/manager/dashboard']);
+          } else if (this.authService.isClerk()) {
+            void this.router.navigate(['/clerk/dashboard']);
+          } else {
+            void this.router.navigate(['/dashboard']);
+          }
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.apiErrorService.getMessage(error);

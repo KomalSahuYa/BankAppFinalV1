@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class ManagerGuard implements CanActivate {
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService
@@ -15,12 +15,16 @@ export class AuthGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser && this.authService.isTokenValid()) {
+    if (currentUser && this.authService.hasRole('MANAGER')) {
       return true;
     }
 
-    this.authService.logout();
-    void this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    if (currentUser && this.authService.hasRole('CLERK')) {
+      void this.router.navigate(['/dashboard']);
+    } else {
+      void this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    }
+
     return false;
   }
 }

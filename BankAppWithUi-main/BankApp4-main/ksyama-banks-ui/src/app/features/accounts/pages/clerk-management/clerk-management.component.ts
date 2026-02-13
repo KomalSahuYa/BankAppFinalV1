@@ -7,6 +7,7 @@ import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { EmployeeResponse } from '../../../../core/models/account.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { trimmedRequiredValidator } from '../../../../core/validators/form-validators';
+import { PermissionService } from '../../../../core/services/permission.service';
 
 @Component({
   selector: 'app-clerk-management',
@@ -17,6 +18,9 @@ export class ClerkManagementComponent implements OnInit {
   loading = false;
   isSubmitting = false;
   errorMessage = '';
+  editingEmployeeId: number | null = null;
+  editFullName = '';
+  editRole: 'CLERK' | 'MANAGER' = 'CLERK';
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
@@ -28,11 +32,14 @@ export class ClerkManagementComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    public readonly permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
-    this.loadEmployees();
+    if (this.permissionService.canViewAllUsers()) {
+      this.loadEmployees();
+    }
   }
 
   createClerk(): void {
@@ -64,6 +71,54 @@ export class ClerkManagementComponent implements OnInit {
           this.isSubmitting = false;
         }
       });
+  }
+
+  startEdit(employee: EmployeeResponse): void {
+    this.editingEmployeeId = employee.id;
+    this.editFullName = employee.fullName;
+    this.editRole = employee.role;
+  }
+
+  cancelEdit(): void {
+    this.editingEmployeeId = null;
+    this.editFullName = '';
+    this.editRole = 'CLERK';
+  }
+
+  saveEdit(employee: EmployeeResponse): void {
+    const fullName = this.editFullName.trim();
+    if (!fullName) {
+      this.notificationService.show('Full name is required.', 'warning');
+      return;
+    }
+
+    this.accountService.updateEmployee(employee.id, { fullName, role: this.editRole }).subscribe({
+      next: () => {
+        this.notificationService.show('Employee updated successfully.', 'success');
+        this.cancelEdit();
+        this.loadEmployees();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      }
+    });
+  }
+
+  deleteEmployee(employee: EmployeeResponse): void {
+    const confirmed = window.confirm(`Deactivate employee ${employee.username}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.accountService.deleteEmployee(employee.id).subscribe({
+      next: () => {
+        this.notificationService.show('Employee deactivated successfully.', 'success');
+        this.loadEmployees();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      }
+    });
   }
 
   loadEmployees(): void {

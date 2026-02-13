@@ -1,18 +1,41 @@
 <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+<div class="dashboard-hero card p-3 mb-3">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h3 class="mb-1">📊 Manager Dashboard</h3>
+      <p class="text-muted mb-0">Track approvals, account health, and employee operations from one place.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <img src="assets/bank-mini.svg" alt="Bank" width="44" height="44" />
+      <button class="btn btn-outline-primary btn-sm" [disabled]="loading" (click)="loadSummary()">Refresh</button>
+    </div>
+  </div>
+</div>
+
 <div class="row g-3">
-  <div class="col-md-4">
-    <div class="card p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h6 class="text-muted">Pending Approvals</h6>
-        <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadPendingCount()">Refresh</button>
-      </div>
+  <div class="col-md-3">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Pending Approvals</div>
       <h2 class="mb-0">{{ loading ? '...' : pendingCount }}</h2>
     </div>
   </div>
-  <div class="col-md-8">
-    <div class="card p-3">
-      <h4>Manager Dashboard</h4>
-      <p class="mb-0">Manage accounts, clerks, and approval workflows from the left navigation.</p>
+  <div class="col-md-3">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Total Accounts</div>
+      <h2 class="mb-0">{{ totalAccounts }}</h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Active Employees</div>
+      <h2 class="mb-0">{{ totalEmployees }}</h2>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Total Portfolio</div>
+      <h2 class="mb-0">₹{{ totalBalance | number : '1.0-0' }}</h2>
     </div>
   </div>
 </div>

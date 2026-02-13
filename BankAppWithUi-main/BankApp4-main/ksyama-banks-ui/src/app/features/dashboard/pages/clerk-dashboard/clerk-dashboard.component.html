@@ -1,5 +1,42 @@
-<div class="card p-4">
-  <h3>Clerk Dashboard</h3>
-  <p class="mb-1">Use the left menu for deposit, withdrawal, and transaction history.</p>
-  <p class="text-muted mb-0">High-value withdrawals are routed to manager approval automatically by backend rules.</p>
+<app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+<div class="dashboard-hero card p-3 mb-3">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h3 class="mb-1">👤 Clerk Dashboard</h3>
+      <p class="text-muted mb-0">Hello {{ clerkName }}, manage daily banking operations quickly and safely.</p>
+    </div>
+    <img src="assets/bank-mini.svg" alt="Bank" width="44" height="44" />
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Accounts Visible</div>
+      <h2 class="mb-0">{{ loading ? '...' : totalAccounts }}</h2>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Portfolio Total</div>
+      <h2 class="mb-0">₹{{ totalBalance | number : '1.0-0' }}</h2>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 metric-card">
+      <div class="text-muted small">Approval Threshold</div>
+      <h2 class="mb-0">₹2,00,000</h2>
+    </div>
+  </div>
+</div>
+
+<div class="card p-3">
+  <h5 class="mb-2">Major Options</h5>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" routerLink="/transactions/deposit">Deposit</a>
+    <a class="btn btn-primary" routerLink="/transactions/withdraw">Withdraw</a>
+    <a class="btn btn-outline-primary" routerLink="/accounts/list">Accounts</a>
+    <a class="btn btn-outline-primary" routerLink="/transactions/history">History</a>
+  </div>
 </div>

@@ -1,7 +1,20 @@
-<header class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded border">
-  <div>
-    <h4 class="mb-0">Bank Management Console</h4>
-    <small class="text-muted">Welcome, {{ authService.getUsername() }}</small>
+<header class="top-nav mb-4">
+  <div class="brand-wrap">
+    <img src="assets/bank-mini.svg" alt="Bank" class="brand-logo" />
+    <div>
+      <h4 class="mb-0">🏦 KSYama Bank Console</h4>
+      <small class="text-light">Welcome, {{ authService.getUsername() || 'Bank User' }}</small>
+    </div>
   </div>
+
+  <nav class="major-links">
+    <a routerLink="/dashboard" routerLinkActive="active" class="major-link">Dashboard</a>
+    <a *ngIf="permissionService.canViewAllAccounts()" routerLink="/accounts/list" routerLinkActive="active" class="major-link">Accounts</a>
+    <a *ngIf="permissionService.canCreateAccount()" routerLink="/accounts/create" routerLinkActive="active" class="major-link">Create Account</a>
+    <a *ngIf="permissionService.canViewTransactionHistory()" routerLink="/transactions/history" routerLinkActive="active" class="major-link">Transactions</a>
+    <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" routerLinkActive="active" class="major-link">Approvals</a>
+    <a *ngIf="permissionService.canViewAllUsers()" routerLink="/accounts/clerks" routerLinkActive="active" class="major-link">Employees</a>
+  </nav>
+
   <button class="btn btn-danger" [disabled]="isLoggingOut" (click)="logout()">{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</button>
 </header>
