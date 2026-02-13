@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AccountService } from '../../../../core/services/account.service';
 import { AccountResponse } from '../../../../core/models/account.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { PermissionService } from '../../../../core/services/permission.service';
 
 @Component({
   selector: 'app-account-list',
@@ -16,11 +17,14 @@ export class AccountListComponent implements OnInit {
 
   constructor(
     private readonly accountService: AccountService,
-    private readonly apiErrorService: ApiErrorService
+    private readonly apiErrorService: ApiErrorService,
+    public readonly permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
-    this.loadAccounts();
+    if (this.permissionService.canViewAllAccounts()) {
+      this.loadAccounts();
+    }
   }
 
   loadAccounts(): void {
