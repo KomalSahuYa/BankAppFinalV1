@@ -9,6 +9,7 @@ import {
   AccountResponse,
   AccountUpdateRequest,
   EmployeeCreateRequest,
+  EmployeeUpdateRequest,
   EmployeeResponse
 } from '../models/account.model';
 
@@ -33,6 +34,10 @@ export class AccountService {
 
   updateAccount(accountNumber: string, request: AccountUpdateRequest): Observable<AccountResponse> {
     return this.http.put<AccountResponse>(`${this.accountsUrl}/${accountNumber}`, request);
+  }
+
+  deleteAccount(accountNumber: string): Observable<void> {
+    return this.http.delete<void>(`${this.accountsUrl}/${accountNumber}`);
   }
 
   deactivateAccount(id: number): Observable<void> {
@@ -71,5 +76,13 @@ export class AccountService {
 
   createEmployee(request: EmployeeCreateRequest): Observable<EmployeeResponse> {
     return this.http.post<EmployeeResponse>(this.employeesUrl, request);
+  }
+
+  updateEmployee(id: number, request: EmployeeUpdateRequest): Observable<EmployeeResponse> {
+    return this.http.put<EmployeeResponse>(`${this.employeesUrl}/${id}`, request);
+  }
+
+  deleteEmployee(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.employeesUrl}/${id}`);
   }
 }

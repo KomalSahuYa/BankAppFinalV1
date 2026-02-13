@@ -1,21 +1,16 @@
-<nav class="sidebar p-3">
-  <h5 class="text-white mb-4">KSYamaBanks</h5>
+<nav class="sidebar p-2 mt-3">
+  <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
 
-  <a routerLink="/dashboard" class="nav-link text-white">Dashboard</a>
+  <a *ngIf="permissionService.canViewAllAccounts()" routerLink="/accounts/list" routerLinkActive="active" class="nav-link">Account List</a>
+  <a *ngIf="permissionService.canCreateAccount()" routerLink="/accounts/create" routerLinkActive="active" class="nav-link">Create Account</a>
 
   <ng-container *ngIf="permissionService.canViewClerkDashboard()">
-    <a routerLink="/transactions/deposit" class="nav-link text-white">Deposit</a>
-    <a routerLink="/transactions/withdraw" class="nav-link text-white">Withdraw</a>
+    <a routerLink="/transactions/deposit" routerLinkActive="active" class="nav-link">Deposit</a>
+    <a routerLink="/transactions/withdraw" routerLinkActive="active" class="nav-link">Withdraw</a>
   </ng-container>
 
-  <a *ngIf="permissionService.canViewTransactionHistory()" routerLink="/transactions/history" class="nav-link text-white">
-    Transaction History
-  </a>
+  <a *ngIf="permissionService.canViewTransactionHistory()" routerLink="/transactions/history" routerLinkActive="active" class="nav-link">Transaction History</a>
 
-  <ng-container *ngIf="permissionService.canViewManagerDashboard()">
-    <a *ngIf="permissionService.canViewAllAccounts()" routerLink="/accounts/list" class="nav-link text-white">Account List</a>
-    <a *ngIf="permissionService.canCreateAccount()" routerLink="/accounts/create" class="nav-link text-white">Create Account</a>
-    <a *ngIf="permissionService.canCreateUser()" routerLink="/accounts/clerks" class="nav-link text-white">Clerk Management</a>
-    <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" class="nav-link text-white">Pending Approvals</a>
-  </ng-container>
+  <a *ngIf="permissionService.canCreateUser()" routerLink="/accounts/clerks" routerLinkActive="active" class="nav-link">Clerk Management</a>
+  <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" routerLinkActive="active" class="nav-link">Pending Approvals</a>
 </nav>

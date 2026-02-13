@@ -17,11 +17,17 @@ export class ClerkManagementComponent implements OnInit {
   employees: EmployeeResponse[] = [];
   loading = false;
   isSubmitting = false;
+  actionInProgress = false;
   errorMessage = '';
+  editingEmployeeId: number | null = null;
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    fullName: ['', [Validators.required, trimmedRequiredValidator]]
+  });
+
+  readonly editForm = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, trimmedRequiredValidator]]
   });
 
@@ -81,6 +87,72 @@ export class ClerkManagementComponent implements OnInit {
       },
       complete: () => {
         this.loading = false;
+      }
+    });
+  }
+
+  startEdit(employee: EmployeeResponse): void {
+    this.editingEmployeeId = employee.id;
+    this.editForm.reset({ fullName: employee.fullName });
+  }
+
+  cancelEdit(): void {
+    this.editingEmployeeId = null;
+    this.editForm.reset({ fullName: '' });
+  }
+
+  updateEmployee(employee: EmployeeResponse): void {
+    if (this.editForm.invalid || this.actionInProgress) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    this.actionInProgress = true;
+    this.errorMessage = '';
+    this.accountService
+      .updateEmployee(employee.id, {
+        fullName: this.editForm.controls.fullName.value.trim(),
+        role: employee.role
+      })
+      .subscribe({
+        next: () => {
+          this.notificationService.show('Employee updated successfully.', 'success');
+          this.cancelEdit();
+          this.loadEmployees();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.apiErrorService.getMessage(error);
+        },
+        complete: () => {
+          this.actionInProgress = false;
+        }
+      });
+  }
+
+  deleteEmployee(employee: EmployeeResponse): void {
+    if (this.actionInProgress) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete employee ${employee.username}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.actionInProgress = true;
+    this.errorMessage = '';
+
+    this.accountService.deleteEmployee(employee.id).subscribe({
+      next: () => {
+        this.notificationService.show('Employee deleted successfully.', 'success');
+        this.cancelEdit();
+        this.loadEmployees();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      },
+      complete: () => {
+        this.actionInProgress = false;
       }
     });
   }

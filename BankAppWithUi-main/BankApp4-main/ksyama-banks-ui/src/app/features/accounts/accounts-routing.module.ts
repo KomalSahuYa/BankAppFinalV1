@@ -7,8 +7,8 @@ import { AccountCreateComponent } from './pages/account-create/account-create.co
 import { ClerkManagementComponent } from './pages/clerk-management/clerk-management.component';
 
 const routes: Routes = [
-  { path: 'list', component: AccountListComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER'] } },
-  { path: 'create', component: AccountCreateComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER'] } },
+  { path: 'list', component: AccountListComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER', 'CLERK'] } },
+  { path: 'create', component: AccountCreateComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER', 'CLERK'] } },
   { path: 'clerks', component: ClerkManagementComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER'] } }
 ];
 

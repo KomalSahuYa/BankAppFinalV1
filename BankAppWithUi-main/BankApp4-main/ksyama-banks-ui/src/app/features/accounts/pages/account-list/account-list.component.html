@@ -1,5 +1,5 @@
 <div *ngIf="permissionService.canViewAllAccounts(); else noAccess">
-<div class="card p-3">
+<div class="card p-3 app-card">
   <div class="d-flex justify-content-between align-items-center">
     <h4>Account List</h4>
     <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadAccounts()">Refresh</button>
@@ -8,19 +8,40 @@
   <div *ngIf="loading">Loading accounts...</div>
 
   <div class="table-responsive" *ngIf="!loading">
-    <table class="table table-sm table-striped">
+    <table class="table table-sm table-striped align-middle">
       <thead>
       <tr>
         <th>Account No</th>
         <th>Holder</th>
         <th>Balance</th>
+        <th *ngIf="permissionService.canUpdateAccount() || permissionService.canDeleteAccount()">Actions</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let account of accounts">
         <td>{{ account.accountNumber }}</td>
-        <td>{{ account.holderName }}</td>
+        <td>
+          <ng-container *ngIf="editingAccountNumber !== account.accountNumber; else editMode">
+            {{ account.holderName }}
+          </ng-container>
+          <ng-template #editMode>
+            <input class="form-control form-control-sm" [formControl]="editForm.controls.holderName" />
+            <div class="text-danger small mt-1" *ngIf="editForm.controls.holderName.touched && editForm.controls.holderName.hasError('required')">
+              Holder name is required.
+            </div>
+          </ng-template>
+        </td>
         <td>{{ account.balance | number : '1.2-2' }}</td>
+        <td *ngIf="permissionService.canUpdateAccount() || permissionService.canDeleteAccount()" class="text-nowrap">
+          <ng-container *ngIf="editingAccountNumber !== account.accountNumber; else editActions">
+            <button *ngIf="permissionService.canUpdateAccount()" class="btn btn-outline-primary btn-sm me-2" (click)="startEdit(account)">Edit</button>
+            <button *ngIf="permissionService.canDeleteAccount()" class="btn btn-outline-danger btn-sm" [disabled]="actionInProgress" (click)="deleteAccount(account.accountNumber)">Delete</button>
+          </ng-container>
+          <ng-template #editActions>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="actionInProgress || editForm.invalid" (click)="saveEdit(account.accountNumber)">Save</button>
+            <button class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="cancelEdit()">Cancel</button>
+          </ng-template>
+        </td>
       </tr>
       </tbody>
     </table>

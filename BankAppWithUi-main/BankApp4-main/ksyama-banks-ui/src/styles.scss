@@ -39,8 +39,33 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--neutral-50);
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
   color: var(--neutral-900);
+}
+
+.app-shell {
+  max-width: 1200px;
+}
+
+.topbar {
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.topbar-brand {
+  font-size: 0.75rem;
+  letter-spacing: 0.12rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-transform: uppercase;
+}
+
+.app-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
 h1,

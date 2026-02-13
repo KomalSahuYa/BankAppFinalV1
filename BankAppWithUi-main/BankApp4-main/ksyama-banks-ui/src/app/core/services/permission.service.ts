@@ -8,10 +8,10 @@ import { AuthService } from './auth.service';
 export class PermissionService {
   constructor(private readonly authService: AuthService) {}
 
-  canCreateAccount(): boolean { return this.authService.isManager(); }
-  canViewAllAccounts(): boolean { return this.authService.isManager(); }
-  canDeleteAccount(): boolean { return this.authService.isManager(); }
-  canUpdateAccount(): boolean { return this.authService.isManager(); }
+  canCreateAccount(): boolean { return this.authService.isManager() || this.authService.isClerk(); }
+  canViewAllAccounts(): boolean { return this.authService.isManager() || this.authService.isClerk(); }
+  canDeleteAccount(): boolean { return this.authService.isManager() || this.authService.isClerk(); }
+  canUpdateAccount(): boolean { return this.authService.isManager() || this.authService.isClerk(); }
 
   canCreateUser(): boolean { return this.authService.isManager(); }
   canViewAllUsers(): boolean { return this.authService.isManager(); }

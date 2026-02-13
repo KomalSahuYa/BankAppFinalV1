@@ -38,3 +38,8 @@ export interface EmployeeCreateRequest {
   role: 'CLERK' | 'MANAGER';
   fullName: string;
 }
+
+export interface EmployeeUpdateRequest {
+  fullName: string;
+  role: 'CLERK' | 'MANAGER';
+}
