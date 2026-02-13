@@ -14,6 +14,7 @@ import { trimmedRequiredValidator } from '../../../../core/validators/form-valid
 export class TransactionHistoryComponent {
   loading = false;
   errorMessage = '';
+  hasSearched = false;
   transactions: TransactionResponse[] = [];
 
   readonly form = this.fb.nonNullable.group({
@@ -34,6 +35,7 @@ export class TransactionHistoryComponent {
 
     this.loading = true;
     this.errorMessage = '';
+    this.hasSearched = true;
     this.transactions = [];
 
     this.transactionService.getHistory(this.form.controls.accountNumber.value.trim()).subscribe({

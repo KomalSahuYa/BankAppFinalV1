@@ -39,6 +39,10 @@ export class ClerkManagementComponent implements OnInit {
     public readonly permissionService: PermissionService
   ) {}
 
+  get clerks(): EmployeeResponse[] {
+    return this.employees.filter((employee) => employee.role === 'CLERK');
+  }
+
   ngOnInit(): void {
     if (this.permissionService.canViewAllUsers()) {
       this.loadEmployees();

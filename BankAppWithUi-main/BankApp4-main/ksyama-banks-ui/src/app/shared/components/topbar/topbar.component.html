@@ -1,8 +1,11 @@
 <header class="topbar d-flex justify-content-between align-items-center p-3">
-  <div>
-    <p class="topbar-brand mb-1">KSYamaBanks</p>
-    <h4 class="mb-0">Bank Management Dashboard</h4>
-    <small class="text-muted">Welcome back, {{ authService.getUsername() }}</small>
+  <div class="d-flex align-items-center gap-3">
+    <div class="brand-logo">KB</div>
+    <div>
+      <p class="topbar-brand mb-1">KSYamaBanks</p>
+      <h4 class="mb-0">Bank Management Dashboard</h4>
+      <small class="text-muted">Welcome back, {{ authService.getUsername() }}</small>
+    </div>
   </div>
   <button class="btn btn-danger" [disabled]="isLoggingOut" (click)="logout()">{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</button>
 </header>

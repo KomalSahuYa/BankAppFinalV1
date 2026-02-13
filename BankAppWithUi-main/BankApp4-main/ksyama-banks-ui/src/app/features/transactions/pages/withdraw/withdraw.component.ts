@@ -30,6 +30,18 @@ export class WithdrawComponent {
     private readonly notificationService: NotificationService
   ) {}
 
+
+
+  refreshSection(): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.form.reset({ accountNumber: '', amount: 0 });
+  }
+
   submit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
