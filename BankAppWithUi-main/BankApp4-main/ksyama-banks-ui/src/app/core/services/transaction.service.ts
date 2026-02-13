@@ -1,14 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import {
-  DepositRequest,
-  TransactionResponse,
-  TransferRequest,
-  WithdrawRequest
-} from '../models/transaction.model';
+import { DepositRequest, TransactionResponse, TransferRequest, WithdrawRequest } from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
@@ -28,6 +23,14 @@ export class TransactionService {
     return this.http.post<TransactionResponse>(`${this.url}/transfer`, request);
   }
 
+  createDeposit(accountNumber: string, amount: number, description?: string): Observable<TransactionResponse> {
+    return this.deposit({ accountNumber, amount });
+  }
+
+  createWithdrawal(accountNumber: string, amount: number, description?: string): Observable<TransactionResponse> {
+    return this.withdraw({ accountNumber, amount });
+  }
+
   getHistory(accountNumber: string): Observable<TransactionResponse[]> {
     return this.http.get<TransactionResponse[]>(`${this.url}/${accountNumber}`);
   }
@@ -42,5 +45,44 @@ export class TransactionService {
 
   reject(id: number): Observable<TransactionResponse> {
     return this.http.post<TransactionResponse>(`${this.url}/reject/${id}`, {});
+  }
+
+  approveTransaction(transactionId: number): Observable<TransactionResponse> { return this.approve(transactionId); }
+  rejectTransaction(transactionId: number, reason: string): Observable<TransactionResponse> { return this.reject(transactionId); }
+
+  getTodayTransactions(): Observable<TransactionResponse[]> {
+    return this.http.get<TransactionResponse[]>(`${this.url}/today`);
+  }
+
+  getClerkTodayTransactions(clerkId: number): Observable<TransactionResponse[]> {
+    return this.http.get<TransactionResponse[]>(`${this.url}/clerk/${clerkId}/today`);
+  }
+
+  getClerkPendingApprovals(clerkId: number): Observable<TransactionResponse[]> {
+    return this.http.get<TransactionResponse[]>(`${this.url}/clerk/${clerkId}/pending`);
+  }
+
+  getRecentTransactions(limit = 10): Observable<TransactionResponse[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<TransactionResponse[]>(`${this.url}/recent`, { params });
+  }
+
+  getClerkRecentTransactions(clerkId: number, limit = 10): Observable<TransactionResponse[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<TransactionResponse[]>(`${this.url}/clerk/${clerkId}/recent`, { params });
+  }
+
+  getRecentApprovalRequests(limit = 5): Observable<TransactionResponse[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<TransactionResponse[]>(`${this.url}/approval-requests/recent`, { params });
+  }
+
+  getMonthlyTrend(months = 6): Observable<any[]> {
+    const params = new HttpParams().set('months', months.toString());
+    return this.http.get<any[]>(`${this.url}/trend/monthly`, { params });
+  }
+
+  needsApproval(amount: number): boolean {
+    return amount > 200000;
   }
 }

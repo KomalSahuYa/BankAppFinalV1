@@ -3,17 +3,19 @@
 
   <a routerLink="/dashboard" class="nav-link text-white">Dashboard</a>
 
-  <ng-container *ngIf="authService.hasRole('CLERK')">
+  <ng-container *ngIf="permissionService.canViewClerkDashboard()">
     <a routerLink="/transactions/deposit" class="nav-link text-white">Deposit</a>
     <a routerLink="/transactions/withdraw" class="nav-link text-white">Withdraw</a>
-    <a routerLink="/transactions/history" class="nav-link text-white">Transaction History</a>
   </ng-container>
 
-  <ng-container *ngIf="authService.hasRole('MANAGER')">
-    <a routerLink="/accounts/list" class="nav-link text-white">Account List</a>
-    <a routerLink="/accounts/create" class="nav-link text-white">Create Account</a>
-    <a routerLink="/accounts/clerks" class="nav-link text-white">Clerk Management</a>
-    <a routerLink="/transactions/pending" class="nav-link text-white">Pending Approvals</a>
-    <a routerLink="/transactions/history" class="nav-link text-white">Transaction History</a>
+  <a *ngIf="permissionService.canViewTransactionHistory()" routerLink="/transactions/history" class="nav-link text-white">
+    Transaction History
+  </a>
+
+  <ng-container *ngIf="permissionService.canViewManagerDashboard()">
+    <a *ngIf="permissionService.canViewAllAccounts()" routerLink="/accounts/list" class="nav-link text-white">Account List</a>
+    <a *ngIf="permissionService.canCreateAccount()" routerLink="/accounts/create" class="nav-link text-white">Create Account</a>
+    <a *ngIf="permissionService.canCreateUser()" routerLink="/accounts/clerks" class="nav-link text-white">Clerk Management</a>
+    <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" class="nav-link text-white">Pending Approvals</a>
   </ng-container>
 </nav>

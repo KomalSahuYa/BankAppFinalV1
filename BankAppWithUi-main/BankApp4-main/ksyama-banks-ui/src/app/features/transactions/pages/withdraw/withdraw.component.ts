@@ -41,7 +41,8 @@ export class WithdrawComponent {
       amount: this.form.controls.amount.value
     };
 
-    const approvalHint = payload.amount > this.managerApprovalLimit ? ' This will be routed for manager approval.' : '';
+    const needsApproval = this.transactionService.needsApproval(payload.amount);
+    const approvalHint = needsApproval ? ' This amount requires manager approval.' : ' This amount will be auto-approved.';
     const confirmed = window.confirm(
       `Confirm withdrawal of ₹${payload.amount.toLocaleString('en-IN')} from account ${payload.accountNumber}?${approvalHint}`
     );
@@ -56,8 +57,11 @@ export class WithdrawComponent {
 
     this.transactionService.withdraw(payload).subscribe({
       next: (res) => {
-        this.successMessage = `Withdrawal request #${res.id} submitted with status ${res.status}.`;
-        this.notificationService.show(this.successMessage, 'success');
+        this.successMessage =
+          res.status === 'PENDING_APPROVAL'
+            ? `Withdrawal request #${res.id} submitted and is pending manager approval.`
+            : `Withdrawal request #${res.id} completed successfully.`;
+        this.notificationService.show(this.successMessage, res.status === 'PENDING_APPROVAL' ? 'warning' : 'success');
         this.form.reset({ accountNumber: '', amount: 0 });
       },
       error: (error: HttpErrorResponse) => {
@@ -67,5 +71,14 @@ export class WithdrawComponent {
         this.isSubmitting = false;
       }
     });
+  }
+
+  getAmountWarning(): string | null {
+    const amount = this.form.controls.amount.value;
+    if (amount > this.managerApprovalLimit) {
+      return `Amount exceeds ₹${this.managerApprovalLimit.toLocaleString('en-IN')}. Manager approval will be required.`;
+    }
+
+    return null;
   }
 }

@@ -1,111 +1,171 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { AuthRequest, AuthResponse, JwtPayload } from '../models/auth.model';
-import { TokenStorageService } from './token-storage.service';
+import { AuthRequest } from '../models/auth.model';
 
-@Injectable({ providedIn: 'root' })
+export interface User {
+  id: number;
+  username: string;
+  role: 'MANAGER' | 'CLERK';
+  token: string;
+  email?: string;
+  fullName?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-  private readonly authUrl = `${environment.apiBaseUrl}/authenticate`;
-  private readonly userState$ = new BehaviorSubject<JwtPayload | null>(this.decodeStoredToken());
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser: Observable<User | null>;
+  private readonly apiUrl = `${environment.apiBaseUrl}/authenticate`;
 
   constructor(
     private readonly http: HttpClient,
-    private readonly tokenStorage: TokenStorageService
-  ) {}
+    private readonly router: Router
+  ) {
+    const storedUser = localStorage.getItem('currentUser') ?? sessionStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<User | null>(storedUser ? JSON.parse(storedUser) : null);
+    this.currentUser = this.currentUserSubject.asObservable();
+  }
 
-  login(request: AuthRequest, persist = true): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(this.authUrl, request).pipe(
-      tap((res) => {
-        const payload = this.decodeToken(res.token);
+  public get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
 
-        if (!payload || this.isExpired(payload)) {
-          this.logout();
-          return;
+  login(credentials: AuthRequest, persist?: boolean): Observable<unknown>;
+  login(username: string, password: string): Observable<unknown>;
+  login(first: AuthRequest | string, second?: boolean | string): Observable<unknown> {
+    const request: AuthRequest =
+      typeof first === 'string' ? { username: first, password: String(second ?? '') } : first;
+    const persist = typeof first === 'string' ? true : typeof second === 'boolean' ? second : true;
+
+    return this.http.post<any>(this.apiUrl, request).pipe(
+      map((response) => {
+        if (response?.token) {
+          const derivedRole = this.extractRolesFromToken(response.token).includes('MANAGER') ? 'MANAGER' : 'CLERK';
+          const user: User = {
+            id: Number(response.userId ?? this.extractUserIdFromToken(response.token) ?? 0),
+            username: response.username ?? request.username,
+            role: (response.role ?? derivedRole) as 'MANAGER' | 'CLERK',
+            token: response.token,
+            email: response.email,
+            fullName: response.fullName
+          };
+
+          this.storeCurrentUser(user, persist);
+          this.currentUserSubject.next(user);
         }
-
-        this.tokenStorage.setToken(res.token, persist);
-        this.userState$.next(payload);
+        return response;
       })
     );
   }
 
   logout(): void {
-    this.tokenStorage.clear();
-    this.userState$.next(null);
+    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
+    void this.router.navigate(['/login']);
   }
 
-  getToken(): string | null {
-    const token = this.tokenStorage.getToken();
+  hasRole(role: string): boolean {
+    const normalizedRole = role.toUpperCase();
+    const user = this.currentUserValue;
 
-    if (!token) {
-      return null;
+    if (!user || !user.token) {
+      return false;
     }
 
-    const payload = this.decodeToken(token);
-
-    if (!payload || this.isExpired(payload)) {
-      this.logout();
-      return null;
+    if (user.role.toUpperCase() === normalizedRole) {
+      return true;
     }
 
-    if (!this.userState$.value) {
-      this.userState$.next(payload);
-    }
+    return this.extractRolesFromToken(user.token).includes(normalizedRole);
+  }
 
-    return token;
+  isManager(): boolean {
+    return this.hasRole('MANAGER');
+  }
+
+  isClerk(): boolean {
+    return this.hasRole('CLERK');
   }
 
   isAuthenticated(): boolean {
-    return this.getToken() !== null;
+    return !!this.currentUserValue && this.isTokenValid();
   }
 
-  getRoles(): string[] {
-    return this.userState$.value?.roles ?? [];
+  isTokenValid(): boolean {
+    const user = this.currentUserValue;
+    if (!user?.token) {
+      return false;
+    }
+
+    try {
+      const payload = this.decodeJwtPayload(user.token);
+      const expirationTime = Number(payload.exp) * 1000;
+
+      return Number.isFinite(expirationTime) && Date.now() < expirationTime;
+    } catch {
+      return false;
+    }
   }
 
-  hasRole(role: 'CLERK' | 'MANAGER'): boolean {
-    const expectedRole = role.toUpperCase();
+  getToken(): string | null {
+    return this.isTokenValid() ? this.currentUserValue?.token ?? null : null;
+  }
 
-    return this.getRoles().some((currentRole) => {
-      const normalized = currentRole.replace('ROLE_', '').toUpperCase();
-      return normalized === expectedRole;
-    });
+  getUserRole(): string | null {
+    return this.currentUserValue?.role ?? null;
+  }
+
+  getUserId(): number | null {
+    return this.currentUserValue?.id ?? null;
   }
 
   getUsername(): string {
-    return this.userState$.value?.sub ?? '';
+    return this.currentUserValue?.username ?? '';
   }
 
-  private decodeStoredToken(): JwtPayload | null {
-    const token = this.tokenStorage.getToken();
-
-    if (!token) {
-      return null;
+  private storeCurrentUser(user: User, persist: boolean): void {
+    const serializedUser = JSON.stringify(user);
+    if (persist) {
+      localStorage.setItem('currentUser', serializedUser);
+      sessionStorage.removeItem('currentUser');
+      return;
     }
 
-    const payload = this.decodeToken(token);
-
-    if (!payload || this.isExpired(payload)) {
-      this.tokenStorage.clear();
-      return null;
-    }
-
-    return payload;
+    sessionStorage.setItem('currentUser', serializedUser);
+    localStorage.removeItem('currentUser');
   }
 
-  private isExpired(payload: JwtPayload): boolean {
-    return payload.exp * 1000 <= Date.now();
+  private extractUserIdFromToken(token: string): number | null {
+    const payload = this.decodeJwtPayload(token);
+    return Number(payload.userId ?? payload.id ?? payload.subId ?? NaN) || null;
   }
 
-  private decodeToken(token: string): JwtPayload | null {
-    try {
-      return jwtDecode<JwtPayload>(token);
-    } catch {
-      return null;
+  private extractRolesFromToken(token: string): string[] {
+    const payload = this.decodeJwtPayload(token);
+    const roles = payload.roles ?? payload.authorities ?? [];
+    if (!Array.isArray(roles)) {
+      return [];
     }
+
+    return roles.map((role: string) => role.replace('ROLE_', '').toUpperCase());
+  }
+
+  private decodeJwtPayload(token: string): any {
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      throw new Error('Invalid JWT token format');
+    }
+
+    const normalizedPayload = tokenParts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const decodedPayload = atob(normalizedPayload.padEnd(normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4), '='));
+    return JSON.parse(decodedPayload);
   }
 }

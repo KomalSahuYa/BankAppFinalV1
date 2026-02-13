@@ -1,20 +1,28 @@
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { SharedModule } from './shared/shared.module';
-import { ClerkDashboardComponent } from './features/dashboard/pages/clerk-dashboard/clerk-dashboard.component';
-import { ManagerDashboardComponent } from './features/dashboard/pages/manager-dashboard/manager-dashboard.component';
-import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home.component';
-import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { ClerkDashboardComponent } from './features/dashboard/pages/clerk-dashboard/clerk-dashboard.component';
+import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home.component';
+import { ManagerDashboardComponent } from './features/dashboard/pages/manager-dashboard/manager-dashboard.component';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [AppComponent, ClerkDashboardComponent, ManagerDashboardComponent, DashboardHomeComponent],
-  imports: [BrowserModule, AppRoutingModule, SharedModule],
-  providers: [provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor]))],
+  imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, SharedModule],
+  providers: [
+    provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

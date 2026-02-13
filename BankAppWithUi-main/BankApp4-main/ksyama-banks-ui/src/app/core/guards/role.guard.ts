@@ -1,29 +1,38 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
-import { NotificationService } from '../services/notification.service';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class RoleGuard implements CanActivate {
   constructor(
-    private readonly authService: AuthService,
-    private readonly notificationService: NotificationService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly authService: AuthService
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): boolean | UrlTree {
-    const allowedRoles = route.data['roles'] as Array<'CLERK' | 'MANAGER'> | undefined;
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    const currentUser = this.authService.currentUserValue;
 
-    if (!this.authService.isAuthenticated()) {
-      return this.router.createUrlTree(['/login']);
-    }
+    if (currentUser) {
+      const requiredRoles = route.data['roles'] as string[];
 
-    if (!allowedRoles || allowedRoles.some((role) => this.authService.hasRole(role))) {
+      if (requiredRoles && requiredRoles.length > 0) {
+        const hasRole = requiredRoles.some((role) => this.authService.hasRole(role));
+
+        if (hasRole) {
+          return true;
+        }
+
+        void this.router.navigate(['/unauthorized']);
+        return false;
+      }
+
       return true;
     }
 
-    this.notificationService.show('You are not authorized to access that page.', 'warning');
-    return this.router.createUrlTree(['/dashboard']);
+    void this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
   }
 }
