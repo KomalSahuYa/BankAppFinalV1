@@ -52,4 +52,14 @@
       </div>
     </div>
   </div>
+
+  <div class="col-12">
+    <div class="card p-3 app-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Audit Logs (Manager Only)</h5>
+        <button class="btn btn-outline-secondary btn-sm" (click)="loadLogs()">Get Logs</button>
+      </div>
+      <div class="small" *ngFor="let log of auditLogs">{{ log }}</div>
+    </div>
+  </div>
 </div>

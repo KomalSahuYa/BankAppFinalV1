@@ -30,7 +30,17 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false, updatable = false)
     private String fullName;
+
+    @Column(unique = true, nullable = false)
+    private String emailId;
+
+    @Column(unique = true, nullable = false, length = 10)
+    private String phoneNumber;
+
+    @Column(unique = true, nullable = false, length = 12, updatable = false)
+    private String aadhaarNumber;
     
     @Column(nullable = false)
     private boolean active = true;
@@ -40,12 +50,18 @@ public class Employee {
     public Employee(String username,
                     String password,
                     Role role,
-                    String fullName) {
+                    String fullName,
+                    String emailId,
+                    String phoneNumber,
+                    String aadhaarNumber) {
 
         this.username = username;
         this.password = password;
         this.role = role;
         this.fullName = fullName;
+        this.emailId = emailId;
+        this.phoneNumber = phoneNumber;
+        this.aadhaarNumber = aadhaarNumber;
     }
 
     

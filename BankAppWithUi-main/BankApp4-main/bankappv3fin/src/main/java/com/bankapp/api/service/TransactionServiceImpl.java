@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountRepository accountRepo;
     private final TransactionRepository txnRepo;
     private final TransactionMapper mapper;
+    private final AuditLogService auditLogService;
 
     private static final BigDecimal LIMIT =
             new BigDecimal("200000");
@@ -61,11 +63,12 @@ public class TransactionServiceImpl implements TransactionService {
                 acc,
                 TransactionType.DEPOSIT,
                 req.amount(),
-                null,
+                currentActor(),
                 ApprovalStatus.APPROVED
         );
 
         txnRepo.save(txn);
+        auditLogService.log(currentActor(), "DEPOSIT", req.accountNumber(), "amount=" + req.amount());
         log.info("Deposit successful for account={} txnId={}", req.accountNumber(), txn.getId());
 
         return mapper.toResponse(txn);
@@ -103,11 +106,12 @@ public class TransactionServiceImpl implements TransactionService {
                 acc,
                 TransactionType.WITHDRAW,
                 req.amount(),
-                null,
+                currentActor(),
                 status
         );
 
         txnRepo.save(txn);
+        auditLogService.log(currentActor(), "WITHDRAW", req.accountNumber(), "amount=" + req.amount() + ",status=" + status);
         log.info("Withdraw created for account={} txnId={} status={}", req.accountNumber(), txn.getId(), txn.getStatus());
 
         return mapper.toResponse(txn);
@@ -142,7 +146,7 @@ public class TransactionServiceImpl implements TransactionService {
                 from,
                 TransactionType.WITHDRAW,
                 req.amount(),
-                null,
+                currentActor(),
                 ApprovalStatus.APPROVED
         );
 
@@ -151,12 +155,13 @@ public class TransactionServiceImpl implements TransactionService {
                 to,
                 TransactionType.DEPOSIT,
                 req.amount(),
-                null,
+                currentActor(),
                 ApprovalStatus.APPROVED
         );
 
         txnRepo.save(debit);
         txnRepo.save(credit);
+        auditLogService.log(currentActor(), "TRANSFER", req.fromAccount(), "to=" + req.toAccount() + ",amount=" + req.amount());
         log.info("Transfer completed from={} to={} debitTxnId={} creditTxnId={}", req.fromAccount(), req.toAccount(), debit.getId(), credit.getId());
 
         return mapper.toResponse(debit);
@@ -187,6 +192,7 @@ public class TransactionServiceImpl implements TransactionService {
         txn.setStatus(ApprovalStatus.APPROVED);
 
         txnRepo.save(txn);
+        auditLogService.log(currentActor(), "APPROVE", txn.getAccountNumber(), "txnId=" + txnId);
         log.info("Transaction approved txnId={}", txnId);
 
         return mapper.toResponse(txn);
@@ -210,6 +216,7 @@ public class TransactionServiceImpl implements TransactionService {
         txn.setStatus(ApprovalStatus.REJECTED);
 
         txnRepo.save(txn);
+        auditLogService.log(currentActor(), "REJECT", txn.getAccountNumber(), "txnId=" + txnId);
         log.info("Transaction rejected txnId={}", txnId);
 
         return mapper.toResponse(txn);
@@ -280,5 +287,11 @@ public class TransactionServiceImpl implements TransactionService {
                         "count", entry.getValue()
                 ))
                 .toList();
+    }
+
+    private String currentActor() {
+        return SecurityContextHolder.getContext().getAuthentication() != null
+                ? SecurityContextHolder.getContext().getAuthentication().getName()
+                : "SYSTEM";
     }
 }

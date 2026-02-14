@@ -20,4 +20,8 @@ public interface EmployeeService {
     void delete(Long id);
 
     boolean usernameExists(String username);
+
+    boolean emailExists(String emailId);
+
+    boolean phoneExists(String phoneNumber);
 }

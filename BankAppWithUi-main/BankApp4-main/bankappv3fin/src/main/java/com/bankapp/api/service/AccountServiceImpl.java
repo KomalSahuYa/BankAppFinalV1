@@ -131,7 +131,8 @@ public class AccountServiceImpl implements AccountService {
                            txn.getType().name(),
                            txn.getAmount(),
                            txn.getStatus().name(),
-                           txn.getTimestamp()
+                           txn.getTimestamp(),
+                           txn.getPerformedBy()
                    ))
                    .toList();
 
@@ -142,5 +143,10 @@ public class AccountServiceImpl implements AccountService {
                 acc.getBalance(),
                 txns
         );
+    }
+
+    @Override
+    public boolean mobileExists(String mobileNumber) {
+        return repository.existsByMobileNumber(mobileNumber);
     }
 }

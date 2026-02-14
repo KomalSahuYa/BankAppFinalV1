@@ -15,7 +15,8 @@ public class TransactionMapper {
                 t.getType().name(),
                 t.getAmount(),
                 t.getStatus().name(),
-                t.getTimestamp()
+                t.getTimestamp(),
+                t.getPerformedBy()
         );
     }
 }

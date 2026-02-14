@@ -9,6 +9,8 @@ export interface User {
   username: string;
   role: 'MANAGER' | 'CLERK';
   email?: string;
+  phoneNumber?: string;
+  aadhaarNumber?: string;
   fullName?: string;
   createdAt?: Date;
   isActive: boolean;
@@ -32,5 +34,15 @@ export class UserService {
   checkUsernameExists(username: string): Observable<boolean> {
     const params = new HttpParams().set('username', username);
     return this.http.get<boolean>(`${this.apiUrl}/check-username`, { params });
+  }
+
+  checkEmailExists(emailId: string): Observable<boolean> {
+    const params = new HttpParams().set('emailId', emailId);
+    return this.http.get<boolean>(`${this.apiUrl}/check-email`, { params });
+  }
+
+  checkPhoneExists(phoneNumber: string): Observable<boolean> {
+    const params = new HttpParams().set('phoneNumber', phoneNumber);
+    return this.http.get<boolean>(`${this.apiUrl}/check-phone`, { params });
   }
 }

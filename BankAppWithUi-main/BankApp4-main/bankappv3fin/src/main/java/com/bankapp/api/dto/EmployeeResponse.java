@@ -7,6 +7,9 @@ public record EmployeeResponse(
         Long id,
         String username,
         Role role,
-        String fullName
+        String fullName,
+        String emailId,
+        String phoneNumber,
+        String aadhaarNumber
 
 ) {}

@@ -16,6 +16,8 @@ export class TransactionHistoryComponent {
   errorMessage = '';
   hasSearched = false;
   transactions: TransactionResponse[] = [];
+  page = 1;
+  readonly pageSize = 8;
 
   readonly form = this.fb.nonNullable.group({
     accountNumber: ['', [Validators.required, trimmedRequiredValidator]]
@@ -41,6 +43,7 @@ export class TransactionHistoryComponent {
     this.transactionService.getHistory(this.form.controls.accountNumber.value.trim()).subscribe({
       next: (rows) => {
         this.transactions = rows;
+        this.page = 1;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
@@ -49,5 +52,29 @@ export class TransactionHistoryComponent {
         this.loading = false;
       }
     });
+  }
+
+  get pagedTransactions(): TransactionResponse[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.transactions.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.transactions.length / this.pageSize));
+  }
+
+  nextPage(): void {
+    this.page = Math.min(this.totalPages, this.page + 1);
+  }
+
+  prevPage(): void {
+    this.page = Math.max(1, this.page - 1);
+  }
+
+  getStatusClass(status: string): string {
+    if (status === 'APPROVED') return 'bg-success-subtle text-success-emphasis';
+    if (status === 'PENDING_APPROVAL') return 'bg-warning-subtle text-warning-emphasis';
+    if (status === 'REJECTED') return 'bg-danger-subtle text-danger-emphasis';
+    return 'bg-secondary-subtle';
   }
 }

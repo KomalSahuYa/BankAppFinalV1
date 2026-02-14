@@ -29,6 +29,7 @@ export interface AccountFullResponse extends AccountResponse {
     amount: number;
     status: 'APPROVED' | 'REJECTED' | 'PENDING_APPROVAL';
     timestamp: string;
+    performedBy: string;
   }>;
 }
 
@@ -37,6 +38,9 @@ export interface EmployeeResponse {
   username: string;
   role: 'CLERK' | 'MANAGER';
   fullName: string;
+  emailId: string;
+  phoneNumber: string;
+  aadhaarNumber: string;
 }
 
 export interface EmployeeCreateRequest {
@@ -44,9 +48,12 @@ export interface EmployeeCreateRequest {
   password: string;
   role: 'CLERK' | 'MANAGER';
   fullName: string;
+  emailId: string;
+  phoneNumber: string;
+  aadhaarNumber: string;
 }
 
 export interface EmployeeUpdateRequest {
-  fullName: string;
-  role: 'CLERK' | 'MANAGER';
+  emailId: string;
+  phoneNumber: string;
 }

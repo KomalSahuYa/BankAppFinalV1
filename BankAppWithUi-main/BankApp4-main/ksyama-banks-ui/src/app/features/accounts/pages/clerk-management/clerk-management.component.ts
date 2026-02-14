@@ -25,16 +25,24 @@ export class ClerkManagementComponent implements OnInit {
   errorMessage = '';
   editingEmployeeId: number | null = null;
   employeeToDelete: EmployeeResponse | null = null;
+  showCreateForm = false;
+  showCreateConfirm = false;
   usernameExists = false;
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    fullName: ['', [Validators.required, trimmedRequiredValidator]]
+    fullName: ['', [Validators.required, trimmedRequiredValidator]],
+    emailId: ['', [Validators.required, Validators.email]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    aadhaarNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{12}$/)]]
   });
 
   readonly editForm = this.fb.nonNullable.group({
-    fullName: ['', [Validators.required, trimmedRequiredValidator]]
+    fullName: [{ value: '', disabled: true }, [Validators.required]],
+    aadhaarNumber: [{ value: '', disabled: true }, [Validators.required]],
+    emailId: ['', [Validators.required, Validators.email]],
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]]
   });
 
   constructor(
@@ -71,12 +79,25 @@ export class ClerkManagementComponent implements OnInit {
     }
   }
 
+  openCreateForm(): void {
+    this.showCreateForm = true;
+  }
+
   createClerk(): void {
     if (this.form.invalid || this.isSubmitting || this.usernameExists) {
       this.form.markAllAsTouched();
       return;
     }
 
+    this.showCreateConfirm = true;
+  }
+
+  closeCreateConfirm(): void {
+    this.showCreateConfirm = false;
+  }
+
+  confirmCreateClerk(): void {
+    this.showCreateConfirm = false;
     this.isSubmitting = true;
     this.errorMessage = '';
 
@@ -85,6 +106,9 @@ export class ClerkManagementComponent implements OnInit {
         ...this.form.getRawValue(),
         username: this.form.controls.username.value.trim(),
         fullName: this.form.controls.fullName.value.trim(),
+        emailId: this.form.controls.emailId.value.trim().toLowerCase(),
+        phoneNumber: this.form.controls.phoneNumber.value.trim(),
+        aadhaarNumber: this.form.controls.aadhaarNumber.value.trim(),
         role: 'CLERK'
       })
       .pipe(finalize(() => {
@@ -92,8 +116,9 @@ export class ClerkManagementComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.form.reset({ username: '', password: '', fullName: '' });
+          this.form.reset({ username: '', password: '', fullName: '', emailId: '', phoneNumber: '', aadhaarNumber: '' });
           this.notificationService.show('Clerk user created successfully.', 'success');
+          this.showCreateForm = false;
           this.loadEmployees();
         },
         error: (error: HttpErrorResponse) => {
@@ -118,12 +143,12 @@ export class ClerkManagementComponent implements OnInit {
 
   startEdit(employee: EmployeeResponse): void {
     this.editingEmployeeId = employee.id;
-    this.editForm.reset({ fullName: employee.fullName });
+    this.editForm.reset({ fullName: employee.fullName, aadhaarNumber: employee.aadhaarNumber, emailId: employee.emailId, phoneNumber: employee.phoneNumber });
   }
 
   cancelEdit(): void {
     this.editingEmployeeId = null;
-    this.editForm.reset({ fullName: '' });
+    this.editForm.reset({ fullName: '', aadhaarNumber: '', emailId: '', phoneNumber: '' });
   }
 
   updateEmployee(employee: EmployeeResponse): void {
@@ -136,8 +161,8 @@ export class ClerkManagementComponent implements OnInit {
     this.errorMessage = '';
     this.accountService
       .updateEmployee(employee.id, {
-        fullName: this.editForm.controls.fullName.value.trim(),
-        role: employee.role
+        emailId: this.editForm.controls.emailId.value.trim().toLowerCase(),
+        phoneNumber: this.editForm.controls.phoneNumber.value.trim()
       })
       .pipe(finalize(() => {
         this.actionInProgress = false;
