@@ -1,7 +1,11 @@
 package com.bankapp.api.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -23,10 +27,12 @@ import com.bankapp.api.repositories.AccountRepository;
 import com.bankapp.api.repositories.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final AccountRepository accountRepo;
@@ -41,6 +47,7 @@ public class TransactionServiceImpl implements TransactionService {
     // =========================
     @Override
     public TransactionResponse deposit(DepositRequest req) {
+        log.info("Deposit requested for account={} amount={}", req.accountNumber(), req.amount());
 
         Account acc = accountRepo
                 .findByAccountNumberAndActiveTrue(req.accountNumber())
@@ -59,6 +66,7 @@ public class TransactionServiceImpl implements TransactionService {
         );
 
         txnRepo.save(txn);
+        log.info("Deposit successful for account={} txnId={}", req.accountNumber(), txn.getId());
 
         return mapper.toResponse(txn);
     }
@@ -68,6 +76,7 @@ public class TransactionServiceImpl implements TransactionService {
     // =========================
     @Override
     public TransactionResponse withdraw(WithdrawRequest req) {
+        log.info("Withdraw requested for account={} amount={}", req.accountNumber(), req.amount());
 
         Account acc = accountRepo
                 .findByAccountNumberAndActiveTrue(req.accountNumber())
@@ -99,6 +108,7 @@ public class TransactionServiceImpl implements TransactionService {
         );
 
         txnRepo.save(txn);
+        log.info("Withdraw created for account={} txnId={} status={}", req.accountNumber(), txn.getId(), txn.getStatus());
 
         return mapper.toResponse(txn);
     }
@@ -109,6 +119,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @PreAuthorize("hasRole('MANAGER') or (hasRole('CLERK') and #req.amount().compareTo(T(java.math.BigDecimal).valueOf(200000)) < 0)")
     public TransactionResponse transfer(TransferRequest req) {
+        log.info("Transfer requested from={} to={} amount={}", req.fromAccount(), req.toAccount(), req.amount());
 
         Account from = accountRepo
                 .findByAccountNumberAndActiveTrue(req.fromAccount())
@@ -146,6 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         txnRepo.save(debit);
         txnRepo.save(credit);
+        log.info("Transfer completed from={} to={} debitTxnId={} creditTxnId={}", req.fromAccount(), req.toAccount(), debit.getId(), credit.getId());
 
         return mapper.toResponse(debit);
     }
@@ -156,6 +168,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @PreAuthorize("hasRole('MANAGER')")
     public TransactionResponse approve(Long txnId) {
+        log.info("Approval requested for txnId={}", txnId);
 
         Transaction txn = txnRepo.findById(txnId)
                 .orElseThrow(() ->
@@ -174,6 +187,7 @@ public class TransactionServiceImpl implements TransactionService {
         txn.setStatus(ApprovalStatus.APPROVED);
 
         txnRepo.save(txn);
+        log.info("Transaction approved txnId={}", txnId);
 
         return mapper.toResponse(txn);
     }
@@ -184,6 +198,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @PreAuthorize("hasRole('MANAGER')")
     public TransactionResponse reject(Long txnId) {
+        log.info("Rejection requested for txnId={}", txnId);
 
         Transaction txn = txnRepo.findById(txnId)
                 .orElseThrow(() ->
@@ -195,6 +210,7 @@ public class TransactionServiceImpl implements TransactionService {
         txn.setStatus(ApprovalStatus.REJECTED);
 
         txnRepo.save(txn);
+        log.info("Transaction rejected txnId={}", txnId);
 
         return mapper.toResponse(txn);
     }
@@ -221,6 +237,48 @@ public class TransactionServiceImpl implements TransactionService {
                 ApprovalStatus.PENDING_APPROVAL)
                 .stream()
                 .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TransactionResponse> getRecent(int limit) {
+        return txnRepo.findAll().stream()
+                .sorted((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()))
+                .limit(Math.max(1, limit))
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<TransactionResponse> getByDate(LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        return txnRepo.findByTimestampBetween(start, end).stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<Map<String, Object>> getDailyCounts(LocalDate from, LocalDate to) {
+        LocalDate startDate = from != null ? from : LocalDate.now().minusDays(29);
+        LocalDate endDate = to != null ? to : LocalDate.now();
+
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.plusDays(1).atStartOfDay();
+
+        Map<LocalDate, Long> dateToCount = new LinkedHashMap<>();
+        txnRepo.findByTimestampBetween(start, end).forEach(transaction -> {
+            LocalDate key = transaction.getTimestamp().toLocalDate();
+            dateToCount.put(key, dateToCount.getOrDefault(key, 0L) + 1);
+        });
+
+        return dateToCount.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> Map.<String, Object>of(
+                        "date", entry.getKey().toString(),
+                        "count", entry.getValue()
+                ))
                 .toList();
     }
 }

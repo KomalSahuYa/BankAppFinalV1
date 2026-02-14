@@ -17,8 +17,13 @@ export interface TransferRequest {
 export interface TransactionResponse {
   id: number;
   accountNumber: string;
-  type: 'DEPOSIT' | 'WITHDRAW';
+  type: 'DEPOSIT' | 'WITHDRAW' | 'TRANSFER';
   amount: number;
   status: 'APPROVED' | 'REJECTED' | 'PENDING_APPROVAL';
   timestamp: string;
+}
+
+export interface DailyTransactionCount {
+  date: string;
+  count: number;
 }

@@ -1,6 +1,8 @@
 package com.bankapp.api.service;
 
 import java.util.List;
+import java.util.Map;
+import java.time.LocalDate;
 
 import com.bankapp.api.dto.DepositRequest;
 import com.bankapp.api.dto.TransactionResponse;
@@ -21,4 +23,7 @@ public interface TransactionService {
 
     TransactionResponse reject(Long txnId);
     List<TransactionResponse> getPending();
+    List<TransactionResponse> getRecent(int limit);
+    List<TransactionResponse> getByDate(LocalDate date);
+    List<Map<String, Object>> getDailyCounts(LocalDate from, LocalDate to);
 }

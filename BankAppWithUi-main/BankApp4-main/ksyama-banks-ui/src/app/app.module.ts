@@ -10,10 +10,12 @@ import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ClerkDashboardComponent } from './features/dashboard/pages/clerk-dashboard/clerk-dashboard.component';
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home.component';
 import { ManagerDashboardComponent } from './features/dashboard/pages/manager-dashboard/manager-dashboard.component';
+import { CalendarComponent } from './features/dashboard/pages/calendar/calendar.component';
+import { ProfileComponent } from './features/dashboard/pages/profile/profile.component';
 import { SharedModule } from './shared/shared.module';
 
 @NgModule({
-  declarations: [AppComponent, ClerkDashboardComponent, ManagerDashboardComponent, DashboardHomeComponent],
+  declarations: [AppComponent, ClerkDashboardComponent, ManagerDashboardComponent, DashboardHomeComponent, CalendarComponent, ProfileComponent],
   imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, SharedModule],
   providers: [
     provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),

@@ -35,3 +35,18 @@
     </div>
   </form>
 </div>
+
+<div class="dialog-backdrop" *ngIf="showConfirmDialog">
+  <div class="dialog-card">
+    <h5 class="mb-2">Confirm withdrawal</h5>
+    <p class="mb-1" *ngIf="pendingPayload">
+      Withdraw <strong>₹{{ pendingPayload.amount | number:'1.2-2' }}</strong> from account
+      <strong>{{ pendingPayload.accountNumber }}</strong>?
+    </p>
+    <p class="small text-muted mb-3">{{ approvalHint }}</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="cancelSubmit()">Cancel</button>
+      <button class="btn btn-primary" type="button" (click)="confirmSubmit()">Confirm</button>
+    </div>
+  </div>
+</div>

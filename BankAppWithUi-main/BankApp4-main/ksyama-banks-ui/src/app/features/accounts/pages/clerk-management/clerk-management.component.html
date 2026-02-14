@@ -9,6 +9,7 @@
             <label class="form-label" for="clerk-username">Username</label>
             <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
             <div class="text-danger small mt-1" *ngIf="(form.controls.username.dirty || form.controls.username.touched) && form.controls.username.hasError('required')">Username is required.</div>
+            <div class="text-danger small mt-1" *ngIf="(form.controls.username.dirty || form.controls.username.touched) && form.controls.username.hasError('duplicate')">Username already exists. Choose another username.</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="clerk-password">Password</label>

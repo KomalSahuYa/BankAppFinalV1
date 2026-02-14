@@ -1,6 +1,7 @@
 package com.bankapp.api.repositories;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,6 @@ public interface TransactionRepository
 
 	List<Transaction> findByAccountNumber(String accNo);
 	List<Transaction> findByStatus(ApprovalStatus status);
+	List<Transaction> findByTimestampBetween(LocalDateTime start, LocalDateTime end);
+	List<Transaction> findByTimestampBetweenAndStatus(LocalDateTime start, LocalDateTime end, ApprovalStatus status);
 }

@@ -1,0 +1,36 @@
+<app-status-message type="danger" [message]="errorMessage"></app-status-message>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card p-3 app-card h-100">
+      <h4 class="mb-3">Transaction Calendar</h4>
+      <div *ngIf="loading">Loading transaction summary...</div>
+      <div class="list-group" *ngIf="!loading">
+        <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          *ngFor="let day of dailyCounts" (click)="selectDate(day.date)">
+          <span>{{ day.date }}</span>
+          <span class="badge text-bg-primary rounded-pill">{{ day.count }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card p-3 app-card h-100">
+      <h4 class="mb-3">Transactions on {{ selectedDate || 'selected day' }}</h4>
+      <div class="table-responsive" *ngIf="selectedTransactions.length > 0">
+        <table class="table table-sm">
+          <thead>
+            <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let txn of selectedTransactions">
+              <td>{{ txn.id }}</td><td>{{ txn.accountNumber }}</td><td>{{ txn.type }}</td><td>{{ txn.amount | number:'1.2-2' }}</td><td>{{ txn.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-muted mb-0" *ngIf="selectedDate && selectedTransactions.length === 0">No transactions on this date.</p>
+      <p class="text-muted mb-0" *ngIf="!selectedDate">Select a date to view details.</p>
+    </div>
+  </div>
+</div>

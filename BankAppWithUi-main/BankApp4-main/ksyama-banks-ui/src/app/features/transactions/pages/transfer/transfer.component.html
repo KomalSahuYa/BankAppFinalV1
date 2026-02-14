@@ -1,0 +1,25 @@
+<div class="card p-3 app-card">
+  <h4 class="mb-3">Transfer</h4>
+  <app-status-message type="success" [message]="successMessage"></app-status-message>
+  <app-status-message type="danger" [message]="errorMessage"></app-status-message>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3" novalidate>
+    <div class="col-md-4">
+      <label class="form-label">From Account</label>
+      <input class="form-control" formControlName="fromAccount" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">To Account</label>
+      <input class="form-control" formControlName="toAccount" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Amount</label>
+      <input type="number" min="0.01" step="0.01" class="form-control" formControlName="amount" />
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">
+        {{ isSubmitting ? 'Processing...' : 'Transfer' }}
+      </button>
+    </div>
+  </form>
+</div>

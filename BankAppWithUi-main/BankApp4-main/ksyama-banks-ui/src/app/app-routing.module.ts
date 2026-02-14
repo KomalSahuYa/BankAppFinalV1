@@ -5,6 +5,8 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { ManagerGuard } from './core/guards/manager.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { DashboardHomeComponent } from './features/dashboard/pages/dashboard-home.component';
+import { CalendarComponent } from './features/dashboard/pages/calendar/calendar.component';
+import { ProfileComponent } from './features/dashboard/pages/profile/profile.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 
 const routes: Routes = [
@@ -16,6 +18,8 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardHomeComponent },
+      { path: 'dashboard/calendar', component: CalendarComponent },
+      { path: 'dashboard/profile', component: ProfileComponent },
       { path: 'transactions', loadChildren: () => import('./features/transactions/transactions.module').then((m) => m.TransactionsModule) },
       {
         path: 'manager',

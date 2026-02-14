@@ -7,12 +7,17 @@
   <ng-container *ngIf="permissionService.canViewClerkDashboard()">
     <a routerLink="/transactions/deposit" routerLinkActive="active" class="nav-link">Deposit</a>
     <a routerLink="/transactions/withdraw" routerLinkActive="active" class="nav-link">Withdraw</a>
+    <a routerLink="/transactions/transfer" routerLinkActive="active" class="nav-link">Transfer</a>
   </ng-container>
 
   <a *ngIf="permissionService.canViewTransactionHistory()" routerLink="/transactions/history" routerLinkActive="active" class="nav-link">Transaction History</a>
 
   <a *ngIf="permissionService.canCreateUser()" routerLink="/accounts/clerks" routerLinkActive="active" class="nav-link">Clerk Management</a>
-  <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" routerLinkActive="active" class="nav-link">Pending Approvals</a>
+  <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" routerLinkActive="active" class="nav-link d-flex justify-content-between align-items-center">
+    <span>Pending Approvals</span>
+    <span class="badge rounded-pill text-bg-danger" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+  </a>
 
-  <button type="button" class="nav-link nav-action" (click)="refreshPage()">Refresh Page</button>
+  <a routerLink="/dashboard/calendar" routerLinkActive="active" class="nav-link">Calendar</a>
+  <a routerLink="/dashboard/profile" routerLinkActive="active" class="nav-link">Profile</a>
 </nav>

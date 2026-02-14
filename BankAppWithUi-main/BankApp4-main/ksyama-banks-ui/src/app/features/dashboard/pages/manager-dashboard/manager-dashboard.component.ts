@@ -54,7 +54,8 @@ export class ManagerDashboardComponent implements OnInit {
         this.accounts = accounts;
         this.activeClerkCount = employees.filter((employee) => employee.role === 'CLERK').length;
 
-        const metrics = this.calculateTimeMetrics(recentTransactions);
+        const approvedTransactions = recentTransactions.filter((transaction) => transaction.status === 'APPROVED');
+        const metrics = this.calculateTimeMetrics(approvedTransactions);
         this.dayCount = metrics.day;
         this.monthCount = metrics.month;
         this.yearCount = metrics.year;
