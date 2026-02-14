@@ -66,6 +66,16 @@ public class EmployeeController {
         return service.usernameExists(username);
     }
 
+    @GetMapping("/check-email")
+    public boolean checkEmail(@RequestParam String emailId) {
+        return service.emailExists(emailId);
+    }
+
+    @GetMapping("/check-phone")
+    public boolean checkPhone(@RequestParam String phoneNumber) {
+        return service.phoneExists(phoneNumber);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

@@ -13,16 +13,22 @@
     <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary w-100" [disabled]="loading || form.invalid">{{ loading ? 'Loading...' : 'Load History' }}</button></div>
   </form>
 
-  <table class="table table-sm table-striped" *ngIf="transactions.length">
-    <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Timestamp</th></tr>
-    <tr *ngFor="let txn of transactions">
+  <table class="table table-sm table-hover align-middle" *ngIf="transactions.length">
+    <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Timestamp</th></tr>
+    <tr *ngFor="let txn of pagedTransactions">
       <td>{{ txn.id }}</td>
       <td>{{ txn.type }}</td>
       <td>{{ txn.amount }}</td>
-      <td>{{ txn.status }}</td>
+      <td><span class="badge rounded-pill" [ngClass]="getStatusClass(txn.status)">{{ txn.status }}</span></td>
+      <td>{{ txn.performedBy || 'SYSTEM' }}</td>
       <td>{{ txn.timestamp | date : 'medium' }}</td>
     </tr>
   </table>
+  <div class="d-flex justify-content-end gap-2" *ngIf="transactions.length > pageSize">
+    <button class="btn btn-outline-secondary btn-sm" (click)="prevPage()" [disabled]="page===1">Prev</button>
+    <span class="small align-self-center">Page {{ page }} / {{ totalPages }}</span>
+    <button class="btn btn-outline-secondary btn-sm" (click)="nextPage()" [disabled]="page===totalPages">Next</button>
+  </div>
 
   <div class="text-muted fw-semibold" *ngIf="hasSearched && !loading && !errorMessage && !transactions.length">
     null

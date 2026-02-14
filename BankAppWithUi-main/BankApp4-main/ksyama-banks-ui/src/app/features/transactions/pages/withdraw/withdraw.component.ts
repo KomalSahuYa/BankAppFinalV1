@@ -3,10 +3,12 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
+import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { WITHDRAWAL_MANAGER_APPROVAL_LIMIT } from '../../../../core/constants/business-rules';
 import { positiveAmountValidator, trimmedRequiredValidator } from '../../../../core/validators/form-validators';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-withdraw',
@@ -20,6 +22,7 @@ export class WithdrawComponent {
   showConfirmDialog = false;
   approvalHint = '';
   pendingPayload: { accountNumber: string; amount: number } | null = null;
+  availableBalance: number | null = null;
 
   readonly form = this.fb.nonNullable.group({
     accountNumber: ['', [Validators.required, trimmedRequiredValidator]],
@@ -29,10 +32,28 @@ export class WithdrawComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly transactionService: TransactionService,
+    private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
     private readonly notificationService: NotificationService
   ) {}
 
+  checkBalance(): void {
+    const accountNumber = this.form.controls.accountNumber.value.trim();
+    if (!accountNumber) {
+      this.availableBalance = null;
+      return;
+    }
+
+    this.accountService.getAccountByNumber(accountNumber).subscribe({
+      next: (account) => {
+        this.availableBalance = account.balance;
+        this.validateInsufficientBalance();
+      },
+      error: () => {
+        this.availableBalance = null;
+      }
+    });
+  }
 
 
   refreshSection(): void {
@@ -46,6 +67,7 @@ export class WithdrawComponent {
   }
 
   submit(): void {
+    this.validateInsufficientBalance();
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
       return;
@@ -80,7 +102,9 @@ export class WithdrawComponent {
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.transactionService.withdraw(payload).subscribe({
+    this.transactionService.withdraw(payload).pipe(finalize(() => {
+      this.isSubmitting = false;
+    })).subscribe({
       next: (res) => {
         this.successMessage =
           res.status === 'PENDING_APPROVAL'
@@ -91,11 +115,24 @@ export class WithdrawComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.isSubmitting = false;
       }
     });
+  }
+
+  validateInsufficientBalance(): void {
+    if (this.availableBalance === null) {
+      return;
+    }
+    const amount = this.form.controls.amount.value;
+    if (amount > this.availableBalance) {
+      this.form.controls.amount.setErrors({ ...(this.form.controls.amount.errors ?? {}), insufficientBalance: true });
+      return;
+    }
+    const errors = this.form.controls.amount.errors ?? {};
+    if (errors['insufficientBalance']) {
+      const { insufficientBalance, ...rest } = errors;
+      this.form.controls.amount.setErrors(Object.keys(rest).length ? rest : null);
+    }
   }
 
   getAmountWarning(): string | null {

@@ -9,5 +9,6 @@ public record TransactionResponse(
         String type,
         BigDecimal amount,
         String status,
-        LocalDateTime timestamp
+        LocalDateTime timestamp,
+        String performedBy
 ) {}

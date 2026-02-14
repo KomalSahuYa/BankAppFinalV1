@@ -17,6 +17,9 @@ public class EmployeeMapper {
         emp.setPassword(req.password());
         emp.setRole(req.role());
         emp.setActive(true);
+        emp.setEmailId(req.emailId().trim().toLowerCase());
+        emp.setPhoneNumber(req.phoneNumber().trim());
+        emp.setAadhaarNumber(req.aadhaarNumber().trim());
 
         return emp;
     }
@@ -27,7 +30,10 @@ public class EmployeeMapper {
                 emp.getId(),
                 emp.getUsername(),
                 emp.getRole(),     // Role enum — matches DTO
-                emp.getFullName()
+                emp.getFullName(),
+                emp.getEmailId(),
+                emp.getPhoneNumber(),
+                emp.getAadhaarNumber()
         );
     }
 }

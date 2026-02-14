@@ -23,6 +23,7 @@ export class ManagerDashboardComponent implements OnInit {
   dayCount = 0;
   monthCount = 0;
   yearCount = 0;
+  auditLogs: string[] = [];
 
   constructor(
     private readonly transactionService: TransactionService,
@@ -32,6 +33,17 @@ export class ManagerDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOverview();
+  }
+
+  loadLogs(): void {
+    this.accountService.getAuditLogs().subscribe({
+      next: (logs) => {
+        this.auditLogs = logs.slice().reverse().slice(0, 100);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorMessage = this.apiErrorService.getMessage(error);
+      }
+    });
   }
 
   get maxGraphCount(): number {

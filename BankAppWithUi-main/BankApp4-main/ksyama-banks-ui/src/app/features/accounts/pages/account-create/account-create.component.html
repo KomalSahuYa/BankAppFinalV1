@@ -33,6 +33,7 @@
       <input id="mobile-number" class="form-control" formControlName="mobileNumber" maxlength="10" />
       <div class="text-danger small mt-1" *ngIf="(form.controls.mobileNumber.dirty || form.controls.mobileNumber.touched) && form.controls.mobileNumber.hasError('required')">Mobile number is required.</div>
       <div class="text-danger small mt-1" *ngIf="(form.controls.mobileNumber.dirty || form.controls.mobileNumber.touched) && form.controls.mobileNumber.hasError('pattern')">Mobile number must be 10 digits.</div>
+      <div class="text-danger small mt-1" *ngIf="(form.controls.mobileNumber.dirty || form.controls.mobileNumber.touched) && form.controls.mobileNumber.hasError('duplicate')">This mobile number already exists.</div>
     </div>
 
     <div class="col-md-6">

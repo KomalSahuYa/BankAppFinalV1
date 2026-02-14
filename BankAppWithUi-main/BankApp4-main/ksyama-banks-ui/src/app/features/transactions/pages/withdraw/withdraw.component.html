@@ -11,7 +11,7 @@
   <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3" novalidate>
     <div class="col-md-6">
       <label class="form-label" for="withdraw-account">Account Number</label>
-      <input id="withdraw-account" class="form-control" formControlName="accountNumber" />
+      <input id="withdraw-account" class="form-control" formControlName="accountNumber" (blur)="checkBalance()" />
       <div class="text-danger small mt-1" *ngIf="(form.controls.accountNumber.dirty || form.controls.accountNumber.touched) && form.controls.accountNumber.hasError('required')">
         Account number is required.
       </div>
@@ -24,6 +24,12 @@
       </div>
       <div class="text-danger small mt-1" *ngIf="(form.controls.amount.dirty || form.controls.amount.touched) && (form.controls.amount.hasError('min') || form.controls.amount.hasError('minAmount'))">
         Amount must be greater than ₹0.00.
+      </div>
+      <div class="text-danger small mt-1" *ngIf="form.controls.amount.hasError('insufficientBalance')">
+        Insufficient balance for this withdrawal.
+      </div>
+      <div class="text-muted small mt-1" *ngIf="availableBalance !== null">
+        Available balance: ₹{{ availableBalance | number:'1.2-2' }}
       </div>
       <div class="text-warning small mt-1" *ngIf="getAmountWarning()">
         {{ getAmountWarning() }}

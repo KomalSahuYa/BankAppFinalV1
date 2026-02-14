@@ -70,6 +70,11 @@ export class AccountService {
     return this.http.get<AccountFullResponse>(`${this.accountsUrl}/${accountNumber}/full`);
   }
 
+  checkAccountMobileExists(mobileNumber: string): Observable<boolean> {
+    const params = new HttpParams().set('mobileNumber', mobileNumber);
+    return this.http.get<boolean>(`${this.accountsUrl}/check-mobile`, { params });
+  }
+
   getEmployees(): Observable<EmployeeResponse[]> {
     return this.http.get<EmployeeResponse[]>(this.employeesUrl);
   }
@@ -84,5 +89,9 @@ export class AccountService {
 
   deleteEmployee(id: number): Observable<void> {
     return this.http.delete<void>(`${this.employeesUrl}/${id}`);
+  }
+
+  getAuditLogs(): Observable<string[]> {
+    return this.http.get<string[]>(`${environment.apiBaseUrl}/audit/logs`);
   }
 }

@@ -21,6 +21,7 @@ export interface TransactionResponse {
   amount: number;
   status: 'APPROVED' | 'REJECTED' | 'PENDING_APPROVAL';
   timestamp: string;
+  performedBy: string;
 }
 
 export interface DailyTransactionCount {

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -20,6 +22,7 @@ export class AccountCreateComponent implements OnInit {
   confirmDialogOpen = false;
 
   private existingAccounts: AccountResponse[] = [];
+  mobileExists = false;
 
   readonly form = this.fb.nonNullable.group({
     holderName: ['', [Validators.required, trimmedRequiredValidator]],
@@ -48,6 +51,19 @@ export class AccountCreateComponent implements OnInit {
       this.form.controls.email.setValue(value.toLowerCase(), { emitEvent: false });
       this.applyDuplicateValidation();
     });
+
+    this.form.controls.mobileNumber.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe((value) => {
+      const mobile = value.trim();
+      if (!/^[0-9]{10}$/.test(mobile)) {
+        this.mobileExists = false;
+        return;
+      }
+
+      this.accountService.checkAccountMobileExists(mobile).subscribe((exists) => {
+        this.mobileExists = exists;
+        this.setDuplicateError(this.form.controls.mobileNumber, exists);
+      });
+    });
   }
 
   openConfirmDialog(): void {
@@ -57,8 +73,8 @@ export class AccountCreateComponent implements OnInit {
     }
 
     this.applyDuplicateValidation();
-    if (this.form.controls.panNumber.hasError('duplicate') || this.form.controls.email.hasError('duplicate')) {
-      this.errorMessage = 'PAN number or email already exists. Please provide unique details.';
+    if (this.form.controls.panNumber.hasError('duplicate') || this.form.controls.email.hasError('duplicate') || this.form.controls.mobileNumber.hasError('duplicate')) {
+      this.errorMessage = 'PAN number, email, or mobile number already exists. Please provide unique details.';
       return;
     }
 
@@ -133,7 +149,7 @@ export class AccountCreateComponent implements OnInit {
     this.setDuplicateError(this.form.controls.email, emailExists);
   }
 
-  private setDuplicateError(control: typeof this.form.controls.panNumber, hasDuplicate: boolean): void {
+  private setDuplicateError(control: AbstractControl, hasDuplicate: boolean): void {
     const errors = control.errors ?? {};
 
     if (hasDuplicate) {

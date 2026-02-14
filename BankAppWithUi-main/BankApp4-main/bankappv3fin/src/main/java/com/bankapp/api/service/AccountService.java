@@ -20,5 +20,7 @@ public interface AccountService {
             AccountUpdateRequest req);
 	
 	AccountFullResponse findFullAccount(String accNo);
+
+	boolean mobileExists(String mobileNumber);
 	
 }
