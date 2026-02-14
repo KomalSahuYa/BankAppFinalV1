@@ -11,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 })
 export class TopbarComponent {
   isLoggingOut = false;
+  showLogoutDialog = false;
 
   constructor(
     public readonly authService: AuthService,
@@ -18,16 +19,22 @@ export class TopbarComponent {
     private readonly router: Router
   ) {}
 
+  openLogoutDialog(): void {
+    if (!this.isLoggingOut) {
+      this.showLogoutDialog = true;
+    }
+  }
+
+  closeLogoutDialog(): void {
+    this.showLogoutDialog = false;
+  }
+
   logout(): void {
     if (this.isLoggingOut) {
       return;
     }
 
-    const confirmed = window.confirm('Are you sure you want to log out of the banking console?');
-    if (!confirmed) {
-      return;
-    }
-
+    this.showLogoutDialog = false;
     this.isLoggingOut = true;
     this.authService.logout();
     this.notificationService.show('You have logged out successfully.', 'info');

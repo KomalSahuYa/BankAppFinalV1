@@ -1,10 +1,10 @@
 <div *ngIf="permissionService.canViewAllUsers(); else noUserAccess">
   <div class="row g-3">
     <div class="col-lg-4">
-      <div class="card p-3 app-card h-100">
-        <h4>Create Clerk</h4>
+      <div class="card p-4 app-card h-100">
+        <h4 class="mb-3">Create Clerk</h4>
         <app-status-message type="danger" [message]="errorMessage"></app-status-message>
-        <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-2" novalidate>
+        <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-3" novalidate>
           <div class="col-12">
             <label class="form-label" for="clerk-username">Username</label>
             <input id="clerk-username" class="form-control" placeholder="Username" formControlName="username" />
@@ -21,19 +21,21 @@
             <input id="clerk-full-name" class="form-control" placeholder="Full name" formControlName="fullName" />
             <div class="text-danger small mt-1" *ngIf="(form.controls.fullName.dirty || form.controls.fullName.touched) && form.controls.fullName.hasError('required')">Full name is required.</div>
           </div>
-          <div class="col-12"><button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button></div>
+          <div class="col-12">
+            <button class="btn btn-primary w-100" [disabled]="isSubmitting || form.invalid" type="submit">{{ isSubmitting ? 'Adding...' : 'Add Clerk' }}</button>
+          </div>
         </form>
       </div>
     </div>
 
     <div class="col-lg-8">
-      <div class="card p-3 app-card mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-          <h4>Update Clerk</h4>
+      <div class="card p-4 app-card mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="mb-0">Clerk Directory</h4>
           <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadEmployees()">Refresh</button>
         </div>
         <div *ngIf="loading">Loading employees...</div>
-        <table class="table table-sm align-middle" *ngIf="!loading">
+        <table class="table align-middle clerk-table" *ngIf="!loading">
           <tr><th>ID</th><th>Username</th><th>Name</th><th>Actions</th></tr>
           <tr *ngFor="let emp of clerks">
             <td>{{ emp.id }}</td>
@@ -44,32 +46,34 @@
                 <input class="form-control form-control-sm" [formControl]="editForm.controls.fullName" />
               </ng-template>
             </td>
-            <td class="text-nowrap">
-              <ng-container *ngIf="editingEmployeeId !== emp.id; else editUserActions">
+            <td>
+              <div class="action-group" *ngIf="editingEmployeeId !== emp.id; else editUserActions">
                 <button class="btn btn-action-edit btn-sm" (click)="startEdit(emp)">Edit</button>
-              </ng-container>
+                <button class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="askDeleteEmployee(emp)">Delete</button>
+              </div>
               <ng-template #editUserActions>
-                <button class="btn btn-primary btn-sm me-2" [disabled]="actionInProgress || editForm.invalid" (click)="updateEmployee(emp)">Save</button>
-                <button class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="cancelEdit()">Cancel</button>
+                <div class="action-group">
+                  <button class="btn btn-primary btn-sm" [disabled]="actionInProgress || editForm.invalid" (click)="updateEmployee(emp)">Save</button>
+                  <button class="btn btn-outline-secondary btn-sm" [disabled]="actionInProgress" (click)="cancelEdit()">Cancel</button>
+                </div>
               </ng-template>
             </td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="card p-3 app-card">
-        <h4>Delete Clerk</h4>
-        <table class="table table-sm align-middle mb-0" *ngIf="!loading">
-          <tr><th>ID</th><th>Username</th><th>Role</th><th>Action</th></tr>
-          <tr *ngFor="let emp of clerks">
-            <td>{{ emp.id }}</td>
-            <td>{{ emp.username }}</td>
-            <td>{{ emp.role }}</td>
-            <td><button class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="deleteEmployee(emp)">Delete</button></td>
           </tr>
         </table>
       </div>
     </div>
   </div>
 </div>
+
+<div class="dialog-backdrop" *ngIf="employeeToDelete">
+  <div class="dialog-card">
+    <h5 class="mb-2">Delete clerk user</h5>
+    <p class="mb-3">Are you sure you want to delete <strong>{{ employeeToDelete?.username }}</strong>?</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn btn-danger" type="button" [disabled]="actionInProgress" (click)="confirmDeleteEmployee()">Delete</button>
+    </div>
+  </div>
+</div>
+
 <ng-template #noUserAccess><p class="text-danger">You are not authorized to manage users.</p></ng-template>

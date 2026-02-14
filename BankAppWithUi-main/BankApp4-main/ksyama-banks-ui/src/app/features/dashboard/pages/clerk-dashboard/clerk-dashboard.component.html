@@ -1,30 +1,40 @@
 <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
 <div class="row g-3">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card p-3 app-card h-100">
       <div class="d-flex justify-content-between align-items-center">
         <h6 class="text-muted">Total Accounts</h6>
         <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadOverview()">Refresh</button>
       </div>
-      <h2 class="mb-0">{{ loading ? '...' : accounts.length }}</h2>
+      <h2 class="mb-0">{{ loading ? '...' : totalAccounts }}</h2>
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card p-3 app-card h-100">
       <h6 class="text-muted">Transactions Today</h6>
       <h2 class="mb-0">{{ loading ? '...' : todayTransactionCount }}</h2>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card p-3 app-card h-100">
-      <h6 class="text-muted">Account Numbers</h6>
-      <div class="small text-muted" *ngIf="loading">Loading account numbers...</div>
-      <div class="small" *ngIf="!loading">
-        <span *ngIf="accounts.length; else noAccounts">{{ accountNumbersDisplay }}</span>
-        <ng-template #noAccounts>null</ng-template>
+  <div class="col-12">
+    <div class="card p-3 app-card">
+      <h5 class="mb-3">Transaction Comparison</h5>
+      <div class="metric-row">
+        <div class="metric-label">Day</div>
+        <div class="metric-bar-wrap"><div class="metric-bar" [style.width.%]="(dayCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ dayCount }}</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Month</div>
+        <div class="metric-bar-wrap"><div class="metric-bar month" [style.width.%]="(monthCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ monthCount }}</div>
+      </div>
+      <div class="metric-row mb-0">
+        <div class="metric-label">Year</div>
+        <div class="metric-bar-wrap"><div class="metric-bar year" [style.width.%]="(yearCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ yearCount }}</div>
       </div>
     </div>
   </div>

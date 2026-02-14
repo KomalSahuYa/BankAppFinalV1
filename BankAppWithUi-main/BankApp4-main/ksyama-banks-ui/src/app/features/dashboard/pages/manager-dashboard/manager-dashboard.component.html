@@ -31,4 +31,25 @@
       <div class="small">Manage clerks: <a routerLink="/accounts/clerks">Open management panel</a></div>
     </div>
   </div>
+
+  <div class="col-12">
+    <div class="card p-3 app-card">
+      <h5 class="mb-3">Transaction Comparison</h5>
+      <div class="metric-row">
+        <div class="metric-label">Day</div>
+        <div class="metric-bar-wrap"><div class="metric-bar" [style.width.%]="(dayCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ dayCount }}</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label">Month</div>
+        <div class="metric-bar-wrap"><div class="metric-bar month" [style.width.%]="(monthCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ monthCount }}</div>
+      </div>
+      <div class="metric-row mb-0">
+        <div class="metric-label">Year</div>
+        <div class="metric-bar-wrap"><div class="metric-bar year" [style.width.%]="(yearCount / maxGraphCount) * 100"></div></div>
+        <div class="metric-value">{{ yearCount }}</div>
+      </div>
+    </div>
+  </div>
 </div>

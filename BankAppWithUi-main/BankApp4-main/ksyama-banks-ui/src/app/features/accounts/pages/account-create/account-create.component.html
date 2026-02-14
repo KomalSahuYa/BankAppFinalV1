@@ -3,7 +3,7 @@
   <app-status-message type="success" [message]="successMessage"></app-status-message>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3" novalidate>
+  <form [formGroup]="form" (ngSubmit)="openConfirmDialog()" class="row g-3" novalidate>
     <div class="col-md-6">
       <label class="form-label" for="holder-name">Holder Name</label>
       <input id="holder-name" class="form-control" formControlName="holderName" />
@@ -17,6 +17,7 @@
       <input id="pan-number" class="form-control text-uppercase" formControlName="panNumber" />
       <div class="text-danger small mt-1" *ngIf="(form.controls.panNumber.dirty || form.controls.panNumber.touched) && form.controls.panNumber.hasError('required')">PAN number is required.</div>
       <div class="text-danger small mt-1" *ngIf="(form.controls.panNumber.dirty || form.controls.panNumber.touched) && form.controls.panNumber.hasError('pattern')">Use valid PAN format (ABCDE1234F).</div>
+      <div class="text-danger small mt-1" *ngIf="(form.controls.panNumber.dirty || form.controls.panNumber.touched) && form.controls.panNumber.hasError('duplicate')">This PAN number already exists.</div>
     </div>
 
     <div class="col-md-6">
@@ -24,6 +25,7 @@
       <input id="email" class="form-control" formControlName="email" />
       <div class="text-danger small mt-1" *ngIf="(form.controls.email.dirty || form.controls.email.touched) && form.controls.email.hasError('required')">Email is required.</div>
       <div class="text-danger small mt-1" *ngIf="(form.controls.email.dirty || form.controls.email.touched) && form.controls.email.hasError('email')">Enter a valid email address.</div>
+      <div class="text-danger small mt-1" *ngIf="(form.controls.email.dirty || form.controls.email.touched) && form.controls.email.hasError('duplicate')">This email already exists.</div>
     </div>
 
     <div class="col-md-6">
@@ -43,10 +45,26 @@
         Initial balance must be greater than ₹0.00.
       </div>
     </div>
-    <div class="col-12">
+    <div class="col-12 d-flex flex-wrap gap-2">
       <button class="btn btn-primary" [disabled]="isSubmitting || form.invalid" type="submit">
         {{ isSubmitting ? 'Creating...' : 'Create Account' }}
       </button>
+      <button class="btn btn-outline-secondary" [disabled]="isSubmitting" type="button" (click)="resetForm()">Reset Form</button>
     </div>
   </form>
+</div>
+
+<div class="dialog-backdrop" *ngIf="confirmDialogOpen">
+  <div class="dialog-card">
+    <h5 class="mb-3">Confirm account creation</h5>
+    <p class="mb-1"><strong>Holder:</strong> {{ form.controls.holderName.value }}</p>
+    <p class="mb-1"><strong>PAN:</strong> {{ form.controls.panNumber.value }}</p>
+    <p class="mb-1"><strong>Email:</strong> {{ form.controls.email.value }}</p>
+    <p class="mb-1"><strong>Mobile:</strong> {{ form.controls.mobileNumber.value }}</p>
+    <p class="mb-3"><strong>Initial balance:</strong> ₹{{ form.controls.initialBalance.value }}</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="closeConfirmDialog()">Cancel</button>
+      <button class="btn btn-primary" type="button" [disabled]="isSubmitting" (click)="submit()">Confirm & Create</button>
+    </div>
+  </div>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -11,7 +12,8 @@ import { PermissionService } from '../../../../core/services/permission.service'
 
 @Component({
   selector: 'app-clerk-management',
-  templateUrl: './clerk-management.component.html'
+  templateUrl: './clerk-management.component.html',
+  styleUrls: ['./clerk-management.component.scss']
 })
 export class ClerkManagementComponent implements OnInit {
   employees: EmployeeResponse[] = [];
@@ -20,6 +22,7 @@ export class ClerkManagementComponent implements OnInit {
   actionInProgress = false;
   errorMessage = '';
   editingEmployeeId: number | null = null;
+  employeeToDelete: EmployeeResponse | null = null;
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
@@ -65,6 +68,9 @@ export class ClerkManagementComponent implements OnInit {
         fullName: this.form.controls.fullName.value.trim(),
         role: 'CLERK'
       })
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+      }))
       .subscribe({
         next: () => {
           this.form.reset({ username: '', password: '', fullName: '' });
@@ -73,24 +79,20 @@ export class ClerkManagementComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.apiErrorService.getMessage(error);
-        },
-        complete: () => {
-          this.isSubmitting = false;
         }
       });
   }
 
   loadEmployees(): void {
     this.loading = true;
-    this.accountService.getEmployees().subscribe({
+    this.accountService.getEmployees().pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (employees) => {
         this.employees = employees;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }
@@ -118,6 +120,9 @@ export class ClerkManagementComponent implements OnInit {
         fullName: this.editForm.controls.fullName.value.trim(),
         role: employee.role
       })
+      .pipe(finalize(() => {
+        this.actionInProgress = false;
+      }))
       .subscribe({
         next: () => {
           this.notificationService.show('Employee updated successfully.', 'success');
@@ -126,27 +131,33 @@ export class ClerkManagementComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.apiErrorService.getMessage(error);
-        },
-        complete: () => {
-          this.actionInProgress = false;
         }
       });
   }
 
-  deleteEmployee(employee: EmployeeResponse): void {
-    if (this.actionInProgress) {
+  askDeleteEmployee(employee: EmployeeResponse): void {
+    if (!this.actionInProgress) {
+      this.employeeToDelete = employee;
+    }
+  }
+
+  cancelDelete(): void {
+    this.employeeToDelete = null;
+  }
+
+  confirmDeleteEmployee(): void {
+    if (!this.employeeToDelete || this.actionInProgress) {
       return;
     }
 
-    const confirmed = window.confirm(`Delete employee ${employee.username}?`);
-    if (!confirmed) {
-      return;
-    }
-
+    const employee = this.employeeToDelete;
+    this.employeeToDelete = null;
     this.actionInProgress = true;
     this.errorMessage = '';
 
-    this.accountService.deleteEmployee(employee.id).subscribe({
+    this.accountService.deleteEmployee(employee.id).pipe(finalize(() => {
+      this.actionInProgress = false;
+    })).subscribe({
       next: () => {
         this.notificationService.show('Employee deleted successfully.', 'success');
         this.cancelEdit();
@@ -154,9 +165,6 @@ export class ClerkManagementComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.actionInProgress = false;
       }
     });
   }

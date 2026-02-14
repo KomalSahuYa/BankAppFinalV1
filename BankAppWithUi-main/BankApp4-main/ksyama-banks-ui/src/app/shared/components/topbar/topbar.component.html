@@ -1,11 +1,25 @@
 <header class="topbar d-flex justify-content-between align-items-center p-3">
   <div class="d-flex align-items-center gap-3">
-    <div class="brand-logo">KB</div>
+    <div class="brand-logo">
+      <span class="logo-mark">KSB</span>
+      <span class="logo-stripe"></span>
+    </div>
     <div>
       <p class="topbar-brand mb-1">KSYamaBanks</p>
       <h4 class="mb-0">Bank Management Dashboard</h4>
       <small class="text-muted">Welcome back, {{ authService.getUsername() }}</small>
     </div>
   </div>
-  <button class="btn btn-danger" [disabled]="isLoggingOut" (click)="logout()">{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</button>
+  <button class="btn btn-danger" [disabled]="isLoggingOut" (click)="openLogoutDialog()">{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</button>
 </header>
+
+<div class="dialog-backdrop" *ngIf="showLogoutDialog">
+  <div class="dialog-card">
+    <h5 class="mb-2">Confirm logout</h5>
+    <p class="mb-3">Are you sure you want to log out of the banking console?</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="closeLogoutDialog()">Cancel</button>
+      <button class="btn btn-danger" type="button" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</div>

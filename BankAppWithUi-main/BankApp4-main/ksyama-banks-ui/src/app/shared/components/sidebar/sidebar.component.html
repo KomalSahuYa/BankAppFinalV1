@@ -13,4 +13,6 @@
 
   <a *ngIf="permissionService.canCreateUser()" routerLink="/accounts/clerks" routerLinkActive="active" class="nav-link">Clerk Management</a>
   <a *ngIf="permissionService.canViewApprovalWorkflow()" routerLink="/transactions/pending" routerLinkActive="active" class="nav-link">Pending Approvals</a>
+
+  <button type="button" class="nav-link nav-action" (click)="refreshPage()">Refresh Page</button>
 </nav>
