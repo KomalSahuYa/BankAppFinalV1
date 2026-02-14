@@ -12,6 +12,8 @@ extends JpaRepository<Employee, Long> {
 
 Optional<Employee> findByUsernameAndActiveTrue(String username);
 
+boolean existsByUsernameAndActiveTrue(String username);
+
 Optional<Employee> findByIdAndActiveTrue(Long id);
 
 List<Employee> findAllByActiveTrue();

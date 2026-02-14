@@ -13,6 +13,14 @@
     <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary w-100" [disabled]="loading || form.invalid">{{ loading ? 'Loading...' : 'Load History' }}</button></div>
   </form>
 
+  <div class="d-flex flex-wrap gap-3 align-items-center mb-2" *ngIf="transactions.length">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="includePerformedByInPdf" [(ngModel)]="includePerformedByInPdf" [ngModelOptions]="{standalone: true}" />
+      <label class="form-check-label" for="includePerformedByInPdf">Include performed by in PDF</label>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" type="button" (click)="downloadPdf()">Download PDF</button>
+  </div>
+
   <table class="table table-sm table-hover align-middle" *ngIf="transactions.length">
     <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Timestamp</th></tr>
     <tr *ngFor="let txn of pagedTransactions">
@@ -31,6 +39,6 @@
   </div>
 
   <div class="text-muted fw-semibold" *ngIf="hasSearched && !loading && !errorMessage && !transactions.length">
-    null
+    No transactions found for this account.
   </div>
 </div>

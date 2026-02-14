@@ -26,6 +26,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository repository;
     private final AccountMapper mapper;
+    private final MailNotificationService mailNotificationService;
+    private final AuditLogService auditLogService;
 
     @Override
     public AccountResponse create(AccountCreateRequest req) {
@@ -44,6 +46,12 @@ public class AccountServiceImpl implements AccountService {
         );
 
         repository.save(acc);
+
+        auditLogService.log("SYSTEM", "ACCOUNT_CREATE", accNo, "holder=" + req.holderName());
+        mailNotificationService.sendOperationMail(
+                acc.getEmail(),
+                "Bank Account Created",
+                "Dear " + acc.getHolderName() + ", your account " + acc.getAccountNumber() + " has been created with opening balance " + acc.getBalance() + ".");
 
         return mapper.toResponse(acc);
     }

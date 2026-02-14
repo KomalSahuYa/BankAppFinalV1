@@ -1,6 +1,7 @@
 package com.bankapp.api.controllers.auth;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bankapp.api.dto.auth.AuthRequest;
 import com.bankapp.api.dto.auth.AuthResponse;
+import com.bankapp.api.exceptions.BusinessException;
+import com.bankapp.api.repositories.EmployeeRepository;
 import com.bankapp.api.security.JwtService;
 
 import jakarta.validation.Valid;
@@ -24,17 +27,27 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final EmployeeRepository employeeRepository;
 
     @PostMapping("/authenticate")
     public AuthResponse authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
+        if (!employeeRepository.existsByUsernameAndActiveTrue(authRequest.username())) {
+            throw new BusinessException("Login failed: username does not exist.");
+        }
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password()));
+        } catch (BadCredentialsException ex) {
+            throw new BusinessException("Login failed: incorrect password.");
+        }
 
         if (authentication.isAuthenticated()) {
             UserDetails user = userDetailsService.loadUserByUsername(authRequest.username());
             return new AuthResponse(jwtService.generateToken(user));
         }
 
-        throw new UsernameNotFoundException("user is invalid");
+        throw new UsernameNotFoundException("Login failed: user is invalid.");
     }
 }

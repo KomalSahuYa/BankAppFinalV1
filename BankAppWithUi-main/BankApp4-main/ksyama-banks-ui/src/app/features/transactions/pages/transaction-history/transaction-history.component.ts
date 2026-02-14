@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import jsPDF from 'jspdf';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
@@ -19,6 +20,7 @@ export class TransactionHistoryComponent {
   transactions: TransactionResponse[] = [];
   page = 1;
   readonly pageSize = 8;
+  includePerformedByInPdf = false;
 
   readonly form = this.fb.nonNullable.group({
     accountNumber: ['', [Validators.required, trimmedRequiredValidator]]
@@ -52,6 +54,44 @@ export class TransactionHistoryComponent {
         this.errorMessage = this.apiErrorService.getMessage(error);
       }
     });
+  }
+
+  downloadPdf(): void {
+    if (!this.transactions.length) {
+      this.errorMessage = 'No transactions available to download.';
+      return;
+    }
+
+    const accountNumber = this.form.controls.accountNumber.value.trim();
+    const doc = new jsPDF();
+    let y = 12;
+
+    doc.setFontSize(14);
+    doc.text(`Transaction History - ${accountNumber}`, 10, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    const headers = this.includePerformedByInPdf
+      ? ['ID', 'Type', 'Amount', 'Status', 'Timestamp', 'Performed By']
+      : ['ID', 'Type', 'Amount', 'Status', 'Timestamp'];
+    doc.text(headers.join(' | '), 10, y);
+    y += 6;
+
+    for (const txn of this.transactions) {
+      const row = this.includePerformedByInPdf
+        ? [txn.id, txn.type, txn.amount, txn.status, new Date(txn.timestamp).toLocaleString(), txn.performedBy || 'SYSTEM']
+        : [txn.id, txn.type, txn.amount, txn.status, new Date(txn.timestamp).toLocaleString()];
+
+      doc.text(row.join(' | '), 10, y);
+      y += 6;
+
+      if (y > 280) {
+        doc.addPage();
+        y = 12;
+      }
+    }
+
+    doc.save(`transaction-history-${accountNumber}.pdf`);
   }
 
   get pagedTransactions(): TransactionResponse[] {
