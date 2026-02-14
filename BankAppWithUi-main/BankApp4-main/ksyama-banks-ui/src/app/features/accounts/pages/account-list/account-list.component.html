@@ -2,26 +2,41 @@
 <div class="card p-3 app-card">
   <div class="d-flex justify-content-between align-items-center">
     <h4>Account List</h4>
-    <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadAccounts()">Refresh</button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="loadAccounts()">Refresh</button>
+      <button class="btn btn-outline-primary btn-sm" [disabled]="loading" (click)="toggleAccountsVisibility()">
+        {{ showAccounts ? 'Hide Accounts' : 'Display All Accounts' }}
+      </button>
+    </div>
   </div>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
   <form [formGroup]="lookupForm" class="row g-2 mb-3" (ngSubmit)="lookupByAccountNumber()">
-    <div class="col-md-8"><input class="form-control" placeholder="Lookup by account number" formControlName="accountNumber" /></div>
-    <div class="col-md-4"><button class="btn btn-outline-primary w-100" type="submit">Get Account Info</button></div>
+    <div class="col-md-3">
+      <select class="form-select" formControlName="lookupType">
+        <option value="accountNumber">By Account Number</option>
+        <option value="holderName">By Name</option>
+      </select>
+    </div>
+    <div class="col-md-6"><input class="form-control" [placeholder]="lookupForm.controls.lookupType.value === 'holderName' ? 'Lookup by account holder name' : 'Lookup by account number'" formControlName="lookupValue" /></div>
+    <div class="col-md-3"><button class="btn btn-outline-primary w-100" type="submit">Get Account Info</button></div>
   </form>
   <div class="alert alert-info py-2" *ngIf="lookupResult">
-    <strong>{{ lookupResult.holderName }}</strong> | {{ lookupResult.accountNumber }} | {{ lookupResult.email }} | {{ lookupResult.mobileNumber }} | ₹{{ lookupResult.balance | number:'1.2-2' }}
+    <strong>{{ lookupResult.holderName }}</strong> | {{ lookupResult.accountNumber }} | {{ lookupResult.mobileNumber }} | ₹{{ lookupResult.balance | number:'1.2-2' }}
   </div>
   <div *ngIf="loading">Loading accounts...</div>
 
-  <div class="table-responsive" *ngIf="!loading">
+  <div class="d-flex justify-content-end align-items-center gap-2 mb-2" *ngIf="showAccounts && !loading">
+    <label class="small text-muted">Sort by creation</label>
+    <button class="btn btn-outline-secondary btn-sm" [class.active]="sortOrder === 'asc'" (click)="applySortOrder('asc')">Ascending</button>
+    <button class="btn btn-outline-secondary btn-sm" [class.active]="sortOrder === 'desc'" (click)="applySortOrder('desc')">Descending</button>
+  </div>
+
+  <div class="table-responsive" *ngIf="showAccounts && !loading">
     <table class="table table-sm table-striped align-middle">
       <thead>
       <tr>
         <th>Account No</th>
         <th>Holder</th>
-        <th>PAN</th>
-        <th>Email</th>
         <th>Mobile</th>
         <th>Balance</th>
         <th *ngIf="permissionService.canUpdateAccount() || permissionService.canDeleteAccount()">Actions</th>
@@ -31,24 +46,42 @@
       <tr *ngFor="let account of pagedAccounts">
         <td>{{ account.accountNumber }}</td>
         <td>{{ account.holderName }}</td>
-        <td>{{ account.panNumber }}</td>
-        <td>{{ account.email }}</td>
         <td>{{ account.mobileNumber }}</td>
         <td>{{ account.balance | number : '1.2-2' }}</td>
         <td *ngIf="permissionService.canUpdateAccount() || permissionService.canDeleteAccount()" class="text-nowrap">
           <button *ngIf="permissionService.canUpdateAccount()" class="btn btn-action-edit btn-sm me-2" (click)="openEditPage(account.accountNumber)">Edit</button>
-          <button *ngIf="permissionService.canDeleteAccount()" class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="deleteAccount(account.accountNumber)">Delete</button>
+          <button *ngIf="permissionService.canDeleteAccount()" class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="requestDelete(account)">Delete</button>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
-  <div class="d-flex justify-content-end gap-2 mt-2" *ngIf="accounts.length > pageSize">
+  <div class="d-flex justify-content-end gap-2 mt-2" *ngIf="showAccounts && accounts.length > pageSize">
     <button class="btn btn-outline-secondary btn-sm" (click)="prevPage()" [disabled]="page===1">Prev</button>
     <span class="small align-self-center">Page {{ page }} / {{ totalPages }}</span>
     <button class="btn btn-outline-secondary btn-sm" (click)="nextPage()" [disabled]="page===totalPages">Next</button>
   </div>
 </div>
 
+</div>
+
+<div class="dialog-backdrop" *ngIf="accountToDelete">
+  <div class="dialog-card">
+    <h5 class="mb-2">Delete account {{ accountToDelete.accountNumber }}</h5>
+    <ng-container *ngIf="deleteConfirmStep === 1; else secondConfirm">
+      <p class="mb-3">This action will permanently delete this account. Do you want to continue?</p>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" type="button" (click)="proceedDeleteStepTwo()">Continue</button>
+      </div>
+    </ng-container>
+    <ng-template #secondConfirm>
+      <p class="mb-3">Second confirmation required: type details verified and confirm final deletion.</p>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelDelete()">Back</button>
+        <button class="btn btn-danger" type="button" [disabled]="actionInProgress" (click)="deleteAccount()">Confirm Delete</button>
+      </div>
+    </ng-template>
+  </div>
 </div>
 <ng-template #noAccess><p class="text-danger">You are not authorized to view accounts.</p></ng-template>

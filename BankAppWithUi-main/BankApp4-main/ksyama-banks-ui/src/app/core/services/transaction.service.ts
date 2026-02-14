@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { DailyTransactionCount, DepositRequest, TransactionResponse, TransferRequest, WithdrawRequest } from '../models/transaction.model';
@@ -8,6 +8,8 @@ import { DailyTransactionCount, DepositRequest, TransactionResponse, TransferReq
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
   private readonly url = `${environment.apiBaseUrl}/transactions`;
+  private readonly approvalsUpdatedSubject = new Subject<void>();
+  readonly approvalsUpdated$ = this.approvalsUpdatedSubject.asObservable();
 
   constructor(private readonly http: HttpClient) {}
 
@@ -45,6 +47,10 @@ export class TransactionService {
 
   reject(id: number): Observable<TransactionResponse> {
     return this.http.post<TransactionResponse>(`${this.url}/reject/${id}`, {});
+  }
+
+  notifyApprovalsUpdated(): void {
+    this.approvalsUpdatedSubject.next();
   }
 
   approveTransaction(transactionId: number): Observable<TransactionResponse> { return this.approve(transactionId); }

@@ -28,3 +28,20 @@
     </tr>
   </table>
 </div>
+
+<div class="dialog-backdrop" *ngIf="selectedTransaction && pendingAction">
+  <div class="dialog-card">
+    <h5 class="mb-2">{{ pendingAction === 'approve' ? 'Approve' : 'Reject' }} withdrawal request</h5>
+    <p class="mb-1"><strong>Request ID:</strong> #{{ selectedTransaction.id }}</p>
+    <p class="mb-1"><strong>Account:</strong> {{ selectedTransaction.accountNumber }}</p>
+    <p class="mb-1"><strong>Amount:</strong> ₹{{ selectedTransaction.amount | number:'1.2-2' }}</p>
+    <p class="mb-3"><strong>Status:</strong> {{ selectedTransaction.status }}</p>
+    <p class="text-warning small">Please review the above details before continuing.</p>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-outline-secondary" type="button" (click)="cancelAction()">Cancel</button>
+      <button class="btn" [ngClass]="pendingAction === 'approve' ? 'btn-success' : 'btn-danger'" type="button" [disabled]="actionInProgressId !== null" (click)="confirmAction()">
+        Confirm {{ pendingAction === 'approve' ? 'Approval' : 'Rejection' }}
+      </button>
+    </div>
+  </div>
+</div>

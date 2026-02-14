@@ -63,6 +63,9 @@ export class ClerkManagementComponent implements OnInit {
       const username = value.trim();
       if (!username) {
         this.usernameExists = false;
+        const errors = this.form.controls.username.errors ?? {};
+        const { duplicate, ...rest } = errors;
+        this.form.controls.username.setErrors(Object.keys(rest).length ? rest : null);
         return;
       }
 
@@ -70,7 +73,12 @@ export class ClerkManagementComponent implements OnInit {
         this.usernameExists = exists;
         if (exists) {
           this.form.controls.username.setErrors({ ...(this.form.controls.username.errors ?? {}), duplicate: true });
+          return;
         }
+
+        const errors = this.form.controls.username.errors ?? {};
+        const { duplicate, ...rest } = errors;
+        this.form.controls.username.setErrors(Object.keys(rest).length ? rest : null);
       });
     });
 

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
@@ -40,16 +41,15 @@ export class TransactionHistoryComponent {
     this.hasSearched = true;
     this.transactions = [];
 
-    this.transactionService.getHistory(this.form.controls.accountNumber.value.trim()).subscribe({
+    this.transactionService.getHistory(this.form.controls.accountNumber.value.trim()).pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (rows) => {
         this.transactions = rows;
         this.page = 1;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }
