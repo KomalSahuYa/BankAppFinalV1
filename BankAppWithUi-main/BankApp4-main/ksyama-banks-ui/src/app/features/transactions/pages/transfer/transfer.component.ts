@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { positiveAmountValidator, trimmedRequiredValidator } from '../../../../core/validators/form-validators';
+import { AccountService } from '../../../../core/services/account.service';
 
 @Component({
   selector: 'app-transfer',
@@ -26,6 +27,7 @@ export class TransferComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly transactionService: TransactionService,
+    private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
     private readonly notificationService: NotificationService
   ) {}
@@ -51,19 +53,26 @@ export class TransferComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.transactionService.transfer(payload).pipe(finalize(() => {
-      this.isSubmitting = false;
-    })).subscribe({
+    this.accountService.getAccountByNumber(payload.fromAccount).pipe(
+      switchMap((fromAccount) => {
+        if (fromAccount.balance < payload.amount) {
+          throw new Error(`Insufficient balance in ${payload.fromAccount}. Available balance is ${fromAccount.balance}.`);
+        }
+        return this.transactionService.transfer(payload);
+      }),
+      finalize(() => {
+        this.isSubmitting = false;
+      })
+    ).subscribe({
       next: (response) => {
         this.successMessage = `Transfer successful. Transaction #${response.id} created.`;
         this.notificationService.show(this.successMessage, 'success');
         this.form.reset({ fromAccount: '', toAccount: '', amount: 0 });
       },
-      error: (error: HttpErrorResponse) => {
-        const apiMessage = this.apiErrorService.getMessage(error);
-        this.errorMessage = payload.fromAccount === payload.toAccount
-          ? 'Transfer failed: source and destination account numbers must be different.'
-          : apiMessage;
+      error: (error: HttpErrorResponse | Error) => {
+        this.errorMessage = error instanceof HttpErrorResponse
+          ? this.apiErrorService.getMessage(error)
+          : error.message;
       }
     });
   }

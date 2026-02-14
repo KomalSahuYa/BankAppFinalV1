@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuditLogService {
-    private static final Path AUDIT_PATH = Path.of("loggs", "audit.log");
+    private static final Path AUDIT_PATH = Path.of("src", "main", "resources", "logs", "audit.log");
 
     public void log(String actor, String action, String target, String details) {
         try {

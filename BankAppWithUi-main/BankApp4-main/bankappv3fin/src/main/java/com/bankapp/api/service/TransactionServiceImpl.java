@@ -40,6 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository txnRepo;
     private final TransactionMapper mapper;
     private final AuditLogService auditLogService;
+    private final MailNotificationService mailNotificationService;
 
     private static final BigDecimal LIMIT =
             new BigDecimal("200000");
@@ -69,6 +70,10 @@ public class TransactionServiceImpl implements TransactionService {
 
         txnRepo.save(txn);
         auditLogService.log(currentActor(), "DEPOSIT", req.accountNumber(), "amount=" + req.amount());
+        mailNotificationService.sendOperationMail(
+                acc.getEmail(),
+                "Deposit Successful",
+                "A deposit of " + req.amount() + " was posted to account " + req.accountNumber() + ". Current balance: " + acc.getBalance() + ".");
         log.info("Deposit successful for account={} txnId={}", req.accountNumber(), txn.getId());
 
         return mapper.toResponse(txn);
@@ -112,6 +117,10 @@ public class TransactionServiceImpl implements TransactionService {
 
         txnRepo.save(txn);
         auditLogService.log(currentActor(), "WITHDRAW", req.accountNumber(), "amount=" + req.amount() + ",status=" + status);
+        mailNotificationService.sendOperationMail(
+                acc.getEmail(),
+                "Withdrawal " + status.name(),
+                "A withdrawal request of " + req.amount() + " for account " + req.accountNumber() + " is " + status.name() + ". Current balance: " + acc.getBalance() + ".");
         log.info("Withdraw created for account={} txnId={} status={}", req.accountNumber(), txn.getId(), txn.getStatus());
 
         return mapper.toResponse(txn);
@@ -162,6 +171,14 @@ public class TransactionServiceImpl implements TransactionService {
         txnRepo.save(debit);
         txnRepo.save(credit);
         auditLogService.log(currentActor(), "TRANSFER", req.fromAccount(), "to=" + req.toAccount() + ",amount=" + req.amount());
+        mailNotificationService.sendOperationMail(
+                from.getEmail(),
+                "Transfer Debit Successful",
+                "An amount of " + req.amount() + " was transferred from account " + req.fromAccount() + " to account " + req.toAccount() + ". Remaining balance: " + from.getBalance() + ".");
+        mailNotificationService.sendOperationMail(
+                to.getEmail(),
+                "Transfer Credit Successful",
+                "An amount of " + req.amount() + " was credited to account " + req.toAccount() + " from account " + req.fromAccount() + ". Current balance: " + to.getBalance() + ".");
         log.info("Transfer completed from={} to={} debitTxnId={} creditTxnId={}", req.fromAccount(), req.toAccount(), debit.getId(), credit.getId());
 
         return mapper.toResponse(debit);
