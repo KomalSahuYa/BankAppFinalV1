@@ -9,4 +9,8 @@ import { PermissionService } from '../../../core/services/permission.service';
 })
 export class SidebarComponent {
   constructor(public readonly permissionService: PermissionService) {}
+
+  refreshPage(): void {
+    window.location.reload();
+  }
 }

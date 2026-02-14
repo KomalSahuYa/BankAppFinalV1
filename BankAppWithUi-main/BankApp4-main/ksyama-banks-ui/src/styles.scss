@@ -30,16 +30,16 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(145deg, #f8fbff 0%, #edf3ff 45%, #ecfeff 100%);
+  background: radial-gradient(circle at 10% 0%, #e0f2fe 0%, #eff6ff 32%, #f8fbff 65%, #ecfeff 100%);
   color: var(--neutral-900);
 }
 
 .app-shell {
   max-width: 1280px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 20px;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
   padding: 1.25rem;
   box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
 }
@@ -109,4 +109,63 @@ h6 {
 .btn-action-delete:hover {
   transform: translateY(-1px);
   color: #fff;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 60px;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.metric-label {
+  font-weight: 600;
+}
+
+.metric-value {
+  text-align: right;
+  font-weight: 600;
+}
+
+.metric-bar-wrap {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.metric-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #2563eb);
+  border-radius: 999px;
+}
+
+.metric-bar.month {
+  background: linear-gradient(90deg, #8b5cf6, #4f46e5);
+}
+
+.metric-bar.year {
+  background: linear-gradient(90deg, #14b8a6, #0d9488);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.dialog-card {
+  width: min(520px, 100%);
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 26px 40px rgba(15, 23, 42, 0.25);
+  padding: 1.25rem;
 }
