@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { DailyTransactionCount, TransactionResponse } from '../../../../core/models/transaction.model';
@@ -27,15 +28,14 @@ export class CalendarComponent implements OnInit {
 
   loadCalendar(): void {
     this.loading = true;
-    this.transactionService.getDailySummary().subscribe({
+    this.transactionService.getDailySummary().pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (rows) => {
         this.dailyCounts = rows;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }

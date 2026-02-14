@@ -1,5 +1,6 @@
 <div class="card p-3 app-card">
   <h4 class="mb-3">Profile</h4>
+  <app-status-message type="danger" [message]="errorMessage"></app-status-message>
   <div class="row g-3">
     <div class="col-md-6"><strong>Username:</strong> {{ authService.currentUserValue?.username }}</div>
     <div class="col-md-6"><strong>Role:</strong> {{ authService.currentUserValue?.role }}</div>
@@ -9,4 +10,5 @@
     <div class="col-md-6"><strong>Phone Number:</strong> {{ employee?.phoneNumber || 'N/A' }}</div>
     <div class="col-md-6"><strong>Aadhaar Number:</strong> {{ employee?.aadhaarNumber || 'N/A' }}</div>
   </div>
+  <small class="text-muted d-block mt-3">Profile data is view-only for clerk users.</small>
 </div>

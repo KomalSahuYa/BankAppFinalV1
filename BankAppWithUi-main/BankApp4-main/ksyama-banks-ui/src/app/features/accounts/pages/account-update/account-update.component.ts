@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
 import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -47,7 +48,9 @@ export class AccountUpdateComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.accountService.getAccountByNumber(this.accountNumber).subscribe({
+    this.accountService.getAccountByNumber(this.accountNumber).pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (account) => {
         this.holderName = account.holderName;
         this.panNumber = account.panNumber;
@@ -55,9 +58,6 @@ export class AccountUpdateComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }
@@ -76,6 +76,9 @@ export class AccountUpdateComponent implements OnInit {
         email: this.form.controls.email.value.trim().toLowerCase(),
         mobileNumber: this.form.controls.mobileNumber.value.trim()
       })
+      .pipe(finalize(() => {
+        this.isSubmitting = false;
+      }))
       .subscribe({
         next: () => {
           this.notificationService.show(`Account ${this.accountNumber} updated successfully.`, 'success');
@@ -83,9 +86,6 @@ export class AccountUpdateComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.apiErrorService.getMessage(error);
-        },
-        complete: () => {
-          this.isSubmitting = false;
         }
       });
   }

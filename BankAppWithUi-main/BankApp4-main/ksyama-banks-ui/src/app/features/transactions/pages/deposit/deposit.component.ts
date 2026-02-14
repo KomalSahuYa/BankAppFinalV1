@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -75,7 +76,9 @@ export class DepositComponent {
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.transactionService.deposit(payload).subscribe({
+    this.transactionService.deposit(payload).pipe(finalize(() => {
+      this.isSubmitting = false;
+    })).subscribe({
       next: (res) => {
         this.successMessage = `Deposit transaction #${res.id} completed.`;
         this.notificationService.show(this.successMessage, 'success');
@@ -83,9 +86,6 @@ export class DepositComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.isSubmitting = false;
       }
     });
   }

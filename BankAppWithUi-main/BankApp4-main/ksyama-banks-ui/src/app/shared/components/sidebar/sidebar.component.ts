@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { interval, Subject } from 'rxjs';
+import { interval, merge, Subject } from 'rxjs';
 import { startWith, switchMap, takeUntil } from 'rxjs/operators';
 
 import { PermissionService } from '../../../core/services/permission.service';
@@ -24,7 +24,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       return;
     }
 
-    interval(30000).pipe(
+    merge(interval(30000), this.transactionService.approvalsUpdated$).pipe(
       startWith(0),
       switchMap(() => this.transactionService.getPendingApprovals()),
       takeUntil(this.destroy$)

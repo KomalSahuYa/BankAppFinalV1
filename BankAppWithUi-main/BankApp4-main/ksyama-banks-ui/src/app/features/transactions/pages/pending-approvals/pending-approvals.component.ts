@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
@@ -15,6 +16,8 @@ export class PendingApprovalsComponent implements OnInit {
   loading = false;
   errorMessage = '';
   actionInProgressId: number | null = null;
+  selectedTransaction: TransactionResponse | null = null;
+  pendingAction: 'approve' | 'reject' | null = null;
 
   constructor(
     private readonly transactionService: TransactionService,
@@ -31,23 +34,13 @@ export class PendingApprovalsComponent implements OnInit {
       return;
     }
 
-    if (!window.confirm(`Approve withdrawal request #${id}?`)) {
+    const txn = this.pending.find((item) => item.id === id);
+    if (!txn) {
       return;
     }
 
-    this.actionInProgressId = id;
-    this.transactionService.approve(id).subscribe({
-      next: () => {
-        this.pending = this.pending.filter((txn) => txn.id !== id);
-        this.notificationService.show(`Withdrawal request #${id} approved.`, 'success');
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.actionInProgressId = null;
-      }
-    });
+    this.pendingAction = 'approve';
+    this.selectedTransaction = txn;
   }
 
   reject(id: number): void {
@@ -55,21 +48,44 @@ export class PendingApprovalsComponent implements OnInit {
       return;
     }
 
-    if (!window.confirm(`Reject withdrawal request #${id}?`)) {
+    const txn = this.pending.find((item) => item.id === id);
+    if (!txn) {
       return;
     }
 
+    this.pendingAction = 'reject';
+    this.selectedTransaction = txn;
+  }
+
+  cancelAction(): void {
+    this.pendingAction = null;
+    this.selectedTransaction = null;
+  }
+
+  confirmAction(): void {
+    if (!this.selectedTransaction || !this.pendingAction || this.actionInProgressId !== null) {
+      return;
+    }
+
+    const id = this.selectedTransaction.id;
     this.actionInProgressId = id;
-    this.transactionService.reject(id).subscribe({
+    const request = this.pendingAction === 'approve' ? this.transactionService.approve(id) : this.transactionService.reject(id);
+
+    request.pipe(finalize(() => {
+      this.actionInProgressId = null;
+    })).subscribe({
       next: () => {
         this.pending = this.pending.filter((txn) => txn.id !== id);
-        this.notificationService.show(`Withdrawal request #${id} rejected.`, 'info');
+        this.notificationService.show(
+          this.pendingAction === 'approve' ? `Withdrawal request #${id} approved.` : `Withdrawal request #${id} rejected.`,
+          this.pendingAction === 'approve' ? 'success' : 'info'
+        );
+        this.transactionService.notifyApprovalsUpdated();
+        this.cancelAction();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.actionInProgressId = null;
+        this.cancelAction();
       }
     });
   }
@@ -78,15 +94,14 @@ export class PendingApprovalsComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.transactionService.getPendingApprovals().subscribe({
+    this.transactionService.getPendingApprovals().pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (rows) => {
         this.pending = rows;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }

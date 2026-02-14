@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
 import { AccountService } from '../../../../core/services/account.service';
 import { AccountResponse } from '../../../../core/models/account.model';
@@ -19,11 +20,16 @@ export class AccountListComponent implements OnInit {
   actionInProgress = false;
   errorMessage = '';
   lookupResult: AccountResponse | null = null;
+  showAccounts = false;
+  sortOrder: 'asc' | 'desc' = 'desc';
+  accountToDelete: AccountResponse | null = null;
+  deleteConfirmStep: 1 | 2 = 1;
   page = 1;
   readonly pageSize = 8;
 
   readonly lookupForm = this.fb.nonNullable.group({
-    accountNumber: ['', [Validators.required]]
+    lookupValue: ['', [Validators.required]],
+    lookupType: this.fb.nonNullable.control<'accountNumber' | 'holderName'>('accountNumber')
   });
 
   constructor(
@@ -36,26 +42,37 @@ export class AccountListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.permissionService.canViewAllAccounts()) {
-      this.loadAccounts();
+    if (!this.permissionService.canViewAllAccounts()) {
+      return;
     }
+
+    this.loadAccounts();
   }
 
   loadAccounts(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.accountService.getAccounts().subscribe({
+    this.accountService.getAccounts().pipe(finalize(() => {
+      this.loading = false;
+    })).subscribe({
       next: (accounts) => {
-        this.accounts = accounts;
+        this.accounts = [...accounts].sort((a, b) => this.sortOrder === 'asc' ? a.id - b.id : b.id - a.id);
         this.page = 1;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
+  }
+
+  toggleAccountsVisibility(): void {
+    this.showAccounts = !this.showAccounts;
+  }
+
+  applySortOrder(order: 'asc' | 'desc'): void {
+    this.sortOrder = order;
+    this.accounts = [...this.accounts].sort((a, b) => this.sortOrder === 'asc' ? a.id - b.id : b.id - a.id);
+    this.page = 1;
   }
 
   get pagedAccounts(): AccountResponse[] {
@@ -74,7 +91,21 @@ export class AccountListComponent implements OnInit {
     if (this.lookupForm.invalid) {
       return;
     }
-    this.accountService.getAccountByNumber(this.lookupForm.controls.accountNumber.value.trim()).subscribe({
+    const lookupValue = this.lookupForm.controls.lookupValue.value.trim();
+    this.lookupResult = null;
+    this.errorMessage = '';
+
+    if (this.lookupForm.controls.lookupType.value === 'holderName') {
+      const match = this.accounts.find((account) => account.holderName.toLowerCase() === lookupValue.toLowerCase());
+      if (!match) {
+        this.errorMessage = 'No account found for the provided account holder name.';
+        return;
+      }
+      this.lookupResult = match;
+      return;
+    }
+
+    this.accountService.getAccountByNumber(lookupValue).subscribe({
       next: (account) => {
         this.lookupResult = account;
       },
@@ -89,29 +120,47 @@ export class AccountListComponent implements OnInit {
     void this.router.navigate(['/accounts/update', accountNumber]);
   }
 
-  deleteAccount(accountNumber: string): void {
+  requestDelete(account: AccountResponse): void {
+    if (!this.actionInProgress) {
+      this.accountToDelete = account;
+      this.deleteConfirmStep = 1;
+    }
+  }
+
+  cancelDelete(): void {
+    this.accountToDelete = null;
+    this.deleteConfirmStep = 1;
+  }
+
+  proceedDeleteStepTwo(): void {
+    this.deleteConfirmStep = 2;
+  }
+
+  deleteAccount(): void {
     if (this.actionInProgress) {
       return;
     }
 
-    const confirmed = window.confirm(`Delete account ${accountNumber}? This action cannot be undone.`);
-    if (!confirmed) {
+    if (!this.accountToDelete || this.deleteConfirmStep !== 2) {
       return;
     }
+
+    const accountNumber = this.accountToDelete.accountNumber;
+    this.accountToDelete = null;
+    this.deleteConfirmStep = 1;
 
     this.actionInProgress = true;
     this.errorMessage = '';
 
-    this.accountService.deleteAccount(accountNumber).subscribe({
+    this.accountService.deleteAccount(accountNumber).pipe(finalize(() => {
+      this.actionInProgress = false;
+    })).subscribe({
       next: () => {
         this.notificationService.show(`Account ${accountNumber} deleted successfully.`, 'success');
         this.loadAccounts();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.actionInProgress = false;
       }
     });
   }

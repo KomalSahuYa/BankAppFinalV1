@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { TransactionService } from '../../../../core/services/transaction.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -41,21 +42,28 @@ export class TransferComponent {
       amount: this.form.controls.amount.value
     };
 
+    if (payload.fromAccount === payload.toAccount) {
+      this.errorMessage = 'Transfer failed: source and destination account numbers must be different.';
+      return;
+    }
+
     this.isSubmitting = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.transactionService.transfer(payload).subscribe({
+    this.transactionService.transfer(payload).pipe(finalize(() => {
+      this.isSubmitting = false;
+    })).subscribe({
       next: (response) => {
         this.successMessage = `Transfer successful. Transaction #${response.id} created.`;
         this.notificationService.show(this.successMessage, 'success');
         this.form.reset({ fromAccount: '', toAccount: '', amount: 0 });
       },
       error: (error: HttpErrorResponse) => {
-        this.errorMessage = this.apiErrorService.getMessage(error);
-      },
-      complete: () => {
-        this.isSubmitting = false;
+        const apiMessage = this.apiErrorService.getMessage(error);
+        this.errorMessage = payload.fromAccount === payload.toAccount
+          ? 'Transfer failed: source and destination account numbers must be different.'
+          : apiMessage;
       }
     });
   }

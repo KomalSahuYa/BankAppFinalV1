@@ -9,7 +9,10 @@
   <div class="card p-4 app-card mb-3" *ngIf="showCreateForm">
     <h5>Create Clerk</h5>
     <form [formGroup]="form" (ngSubmit)="createClerk()" class="row g-3" novalidate>
-      <div class="col-md-6"><input class="form-control" placeholder="Username" formControlName="username" /></div>
+      <div class="col-md-6">
+        <input class="form-control" placeholder="Username" formControlName="username" />
+        <small class="text-danger" *ngIf="form.controls.username.hasError('duplicate')">This username already exists. Please choose another username.</small>
+      </div>
       <div class="col-md-6"><input class="form-control" type="password" placeholder="Password" formControlName="password" /></div>
       <div class="col-md-6"><input class="form-control" placeholder="Full name" formControlName="fullName" /></div>
       <div class="col-md-6"><input class="form-control" placeholder="Email" formControlName="emailId" /></div>
