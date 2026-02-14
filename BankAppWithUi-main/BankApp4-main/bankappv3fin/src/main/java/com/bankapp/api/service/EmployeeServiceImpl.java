@@ -78,6 +78,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setActive(false);
     }
 
+    @Override
+    public boolean usernameExists(String username) {
+        return repository.findByUsernameAndActiveTrue(username).isPresent();
+    }
+
     private Employee getActiveEmployee(Long id) {
         return repository.findByIdAndActiveTrue(id)
                 .orElseThrow(() ->

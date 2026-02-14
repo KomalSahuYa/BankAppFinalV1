@@ -1,6 +1,8 @@
 package com.bankapp.api.controllers;
 
 import java.util.List;
+import java.util.Map;
+import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bankapp.api.dto.DepositRequest;
 import com.bankapp.api.dto.TransactionResponse;
@@ -70,5 +73,22 @@ public class TransactionController {
     public List<TransactionResponse> pending() {
 
         return service.getPending();
+    }
+
+    @GetMapping("/recent")
+    public List<TransactionResponse> recent(@RequestParam(defaultValue = "50") int limit) {
+        return service.getRecent(limit);
+    }
+
+    @GetMapping("/by-date")
+    public List<TransactionResponse> byDate(@RequestParam LocalDate date) {
+        return service.getByDate(date);
+    }
+
+    @GetMapping("/summary/daily")
+    public List<Map<String, Object>> dailySummary(
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to) {
+        return service.getDailyCounts(from, to);
     }
 }

@@ -4,10 +4,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { ClerkDashboardComponent } from './pages/clerk-dashboard/clerk-dashboard.component';
 import { ManagerDashboardComponent } from './pages/manager-dashboard/manager-dashboard.component';
 import { RoleGuard } from '../../core/guards/role.guard';
+import { CalendarComponent } from './pages/calendar/calendar.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 const routes: Routes = [
   { path: 'clerk', component: ClerkDashboardComponent, canActivate: [RoleGuard], data: { roles: ['CLERK'] } },
-  { path: 'manager', component: ManagerDashboardComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER'] } }
+  { path: 'manager', component: ManagerDashboardComponent, canActivate: [RoleGuard], data: { roles: ['MANAGER'] } },
+  { path: 'calendar', component: CalendarComponent, canActivate: [RoleGuard], data: { roles: ['CLERK', 'MANAGER'] } },
+  { path: 'profile', component: ProfileComponent, canActivate: [RoleGuard], data: { roles: ['CLERK', 'MANAGER'] } }
 ];
 
 @NgModule({

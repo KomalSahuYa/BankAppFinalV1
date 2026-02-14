@@ -8,18 +8,17 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { positiveAmountValidator, trimmedRequiredValidator } from '../../../../core/validators/form-validators';
 
 @Component({
-  selector: 'app-deposit',
-  templateUrl: './deposit.component.html'
+  selector: 'app-transfer',
+  templateUrl: './transfer.component.html'
 })
-export class DepositComponent {
+export class TransferComponent {
   isSubmitting = false;
   successMessage = '';
   errorMessage = '';
-  showConfirmDialog = false;
-  pendingPayload: { accountNumber: string; amount: number } | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    accountNumber: ['', [Validators.required, trimmedRequiredValidator]],
+    fromAccount: ['', [Validators.required, trimmedRequiredValidator]],
+    toAccount: ['', [Validators.required, trimmedRequiredValidator]],
     amount: [0, [Validators.required, Validators.min(0.01), positiveAmountValidator(0.01)]]
   });
 
@@ -30,18 +29,6 @@ export class DepositComponent {
     private readonly notificationService: NotificationService
   ) {}
 
-
-
-  refreshSection(): void {
-    if (this.isSubmitting) {
-      return;
-    }
-
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.form.reset({ accountNumber: '', amount: 0 });
-  }
-
   submit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
@@ -49,37 +36,20 @@ export class DepositComponent {
     }
 
     const payload = {
-      accountNumber: this.form.controls.accountNumber.value.trim(),
+      fromAccount: this.form.controls.fromAccount.value.trim(),
+      toAccount: this.form.controls.toAccount.value.trim(),
       amount: this.form.controls.amount.value
     };
 
-    this.pendingPayload = payload;
-    this.showConfirmDialog = true;
-  }
-
-  cancelSubmit(): void {
-    this.showConfirmDialog = false;
-    this.pendingPayload = null;
-  }
-
-  confirmSubmit(): void {
-    if (!this.pendingPayload || this.isSubmitting) {
-      return;
-    }
-
-    const payload = this.pendingPayload;
-    this.showConfirmDialog = false;
-    this.pendingPayload = null;
-
     this.isSubmitting = true;
-    this.successMessage = '';
     this.errorMessage = '';
+    this.successMessage = '';
 
-    this.transactionService.deposit(payload).subscribe({
-      next: (res) => {
-        this.successMessage = `Deposit transaction #${res.id} completed.`;
+    this.transactionService.transfer(payload).subscribe({
+      next: (response) => {
+        this.successMessage = `Transfer successful. Transaction #${response.id} created.`;
         this.notificationService.show(this.successMessage, 'success');
-        this.form.reset({ accountNumber: '', amount: 0 });
+        this.form.reset({ fromAccount: '', toAccount: '', amount: 0 });
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);

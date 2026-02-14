@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { DepositRequest, TransactionResponse, TransferRequest, WithdrawRequest } from '../models/transaction.model';
+import { DailyTransactionCount, DepositRequest, TransactionResponse, TransferRequest, WithdrawRequest } from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
@@ -51,7 +51,8 @@ export class TransactionService {
   rejectTransaction(transactionId: number, reason: string): Observable<TransactionResponse> { return this.reject(transactionId); }
 
   getTodayTransactions(): Observable<TransactionResponse[]> {
-    return this.http.get<TransactionResponse[]>(`${this.url}/today`);
+    const today = new Date().toISOString().split('T')[0];
+    return this.http.get<TransactionResponse[]>(`${this.url}/by-date`, { params: new HttpParams().set('date', today) });
   }
 
   getClerkTodayTransactions(clerkId: number): Observable<TransactionResponse[]> {
@@ -80,6 +81,22 @@ export class TransactionService {
   getMonthlyTrend(months = 6): Observable<any[]> {
     const params = new HttpParams().set('months', months.toString());
     return this.http.get<any[]>(`${this.url}/trend/monthly`, { params });
+  }
+
+  getTransactionsByDate(date: string): Observable<TransactionResponse[]> {
+    return this.http.get<TransactionResponse[]>(`${this.url}/by-date`, { params: new HttpParams().set('date', date) });
+  }
+
+  getDailySummary(from?: string, to?: string): Observable<DailyTransactionCount[]> {
+    let params = new HttpParams();
+    if (from) {
+      params = params.set('from', from);
+    }
+    if (to) {
+      params = params.set('to', to);
+    }
+
+    return this.http.get<DailyTransactionCount[]>(`${this.url}/summary/daily`, { params });
   }
 
   needsApproval(amount: number): boolean {

@@ -3,6 +3,9 @@
     <h4>Pending Withdrawals</h4>
     <button class="btn btn-outline-secondary btn-sm" [disabled]="loading" (click)="load()">Refresh</button>
   </div>
+  <div class="my-2" *ngIf="pending.length > 0">
+    <span class="badge text-bg-danger">{{ pending.length }} pending approval request(s)</span>
+  </div>
   <app-status-message type="danger" [message]="errorMessage"></app-status-message>
 
   <div *ngIf="loading">Loading pending approvals...</div>

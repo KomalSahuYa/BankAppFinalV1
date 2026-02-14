@@ -8,9 +8,10 @@ import { DepositComponent } from './pages/deposit/deposit.component';
 import { WithdrawComponent } from './pages/withdraw/withdraw.component';
 import { TransactionHistoryComponent } from './pages/transaction-history/transaction-history.component';
 import { PendingApprovalsComponent } from './pages/pending-approvals/pending-approvals.component';
+import { TransferComponent } from './pages/transfer/transfer.component';
 
 @NgModule({
-  declarations: [DepositComponent, WithdrawComponent, TransactionHistoryComponent, PendingApprovalsComponent],
+  declarations: [DepositComponent, WithdrawComponent, TransactionHistoryComponent, PendingApprovalsComponent, TransferComponent],
   imports: [CommonModule, ReactiveFormsModule, TransactionsRoutingModule, SharedModule]
 })
 export class TransactionsModule {}

@@ -47,7 +47,8 @@ export class ClerkDashboardComponent implements OnInit {
     })).subscribe({
       next: ({ accounts, transactions }) => {
         this.totalAccounts = accounts.length;
-        const metrics = this.calculateTimeMetrics(transactions);
+        const approvedTransactions = transactions.filter((transaction) => transaction.status === 'APPROVED');
+        const metrics = this.calculateTimeMetrics(approvedTransactions);
         this.dayCount = metrics.day;
         this.monthCount = metrics.month;
         this.yearCount = metrics.year;

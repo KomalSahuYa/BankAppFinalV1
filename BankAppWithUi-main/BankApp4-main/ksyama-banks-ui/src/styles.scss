@@ -30,13 +30,13 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: radial-gradient(circle at 10% 0%, #e0f2fe 0%, #eff6ff 32%, #f8fbff 65%, #ecfeff 100%);
+  background: linear-gradient(145deg, #eaf2ff 0%, #dfe9ff 35%, #edf4ff 70%, #f6f9ff 100%);
   color: var(--neutral-900);
 }
 
 .app-shell {
   max-width: 1280px;
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(160deg, rgba(239, 246, 255, 0.88), rgba(219, 234, 254, 0.7));
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 20px;
   backdrop-filter: blur(8px);
@@ -46,7 +46,7 @@ body {
 
 .topbar {
   border-radius: 16px;
-  background: #ffffff;
+  background: linear-gradient(120deg, rgba(191, 219, 254, 0.5), rgba(224, 242, 254, 0.72));
   border: 1px solid var(--neutral-200);
   box-shadow: var(--shadow-md);
 }
@@ -63,6 +63,7 @@ body {
 .card {
   border-radius: 14px;
   border: 1px solid var(--neutral-200);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.9));
   box-shadow: var(--shadow-sm);
 }
 

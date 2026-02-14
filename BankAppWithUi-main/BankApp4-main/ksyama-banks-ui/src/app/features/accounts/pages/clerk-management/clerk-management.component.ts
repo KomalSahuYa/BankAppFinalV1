@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { AccountService } from '../../../../core/services/account.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -9,6 +10,7 @@ import { EmployeeResponse } from '../../../../core/models/account.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { trimmedRequiredValidator } from '../../../../core/validators/form-validators';
 import { PermissionService } from '../../../../core/services/permission.service';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-clerk-management',
@@ -23,6 +25,7 @@ export class ClerkManagementComponent implements OnInit {
   errorMessage = '';
   editingEmployeeId: number | null = null;
   employeeToDelete: EmployeeResponse | null = null;
+  usernameExists = false;
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required, trimmedRequiredValidator]],
@@ -39,7 +42,8 @@ export class ClerkManagementComponent implements OnInit {
     private readonly accountService: AccountService,
     private readonly apiErrorService: ApiErrorService,
     private readonly notificationService: NotificationService,
-    public readonly permissionService: PermissionService
+    public readonly permissionService: PermissionService,
+    private readonly userService: UserService
   ) {}
 
   get clerks(): EmployeeResponse[] {
@@ -47,13 +51,28 @@ export class ClerkManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.form.controls.username.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe((value) => {
+      const username = value.trim();
+      if (!username) {
+        this.usernameExists = false;
+        return;
+      }
+
+      this.userService.checkUsernameExists(username).subscribe((exists) => {
+        this.usernameExists = exists;
+        if (exists) {
+          this.form.controls.username.setErrors({ ...(this.form.controls.username.errors ?? {}), duplicate: true });
+        }
+      });
+    });
+
     if (this.permissionService.canViewAllUsers()) {
       this.loadEmployees();
     }
   }
 
   createClerk(): void {
-    if (this.form.invalid || this.isSubmitting) {
+    if (this.form.invalid || this.isSubmitting || this.usernameExists) {
       this.form.markAllAsTouched();
       return;
     }
