@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/authenticate").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                         .requestMatchers("/accounts/**").hasAnyRole("CLERK", "MANAGER")
                         .requestMatchers("/transactions/**").hasAnyRole("CLERK", "MANAGER")
                         .requestMatchers("/employees/**").hasRole("MANAGER")

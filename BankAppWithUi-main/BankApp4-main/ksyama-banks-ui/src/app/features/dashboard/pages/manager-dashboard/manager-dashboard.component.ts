@@ -24,6 +24,11 @@ export class ManagerDashboardComponent implements OnInit {
   monthCount = 0;
   yearCount = 0;
   auditLogs: string[] = [];
+  logSearchDate = '';
+  logPage = 1;
+  readonly logPageSize = 8;
+  totalLogPages = 1;
+  totalLogElements = 0;
 
   constructor(
     private readonly transactionService: TransactionService,
@@ -33,17 +38,40 @@ export class ManagerDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOverview();
+    this.loadLogs();
   }
 
   loadLogs(): void {
-    this.accountService.getAuditLogs().subscribe({
-      next: (logs) => {
-        this.auditLogs = logs.slice().reverse().slice(0, 100);
+    this.accountService.getAuditLogs(this.logSearchDate || undefined, this.logPage, this.logPageSize).subscribe({
+      next: (response) => {
+        this.auditLogs = response.logs;
+        this.logPage = response.page;
+        this.totalLogPages = response.totalPages;
+        this.totalLogElements = response.totalElements;
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = this.apiErrorService.getMessage(error);
       }
     });
+  }
+
+  searchLogs(): void {
+    this.logPage = 1;
+    this.loadLogs();
+  }
+
+  nextLogPage(): void {
+    if (this.logPage < this.totalLogPages) {
+      this.logPage += 1;
+      this.loadLogs();
+    }
+  }
+
+  prevLogPage(): void {
+    if (this.logPage > 1) {
+      this.logPage -= 1;
+      this.loadLogs();
+    }
   }
 
   get maxGraphCount(): number {

@@ -6,4 +6,13 @@
       <router-outlet></router-outlet>
     </main>
   </div>
+
+  <div class="support-widget">
+    <button class="btn btn-primary btn-sm" (click)="toggleSupportInfo()">Need Help?</button>
+    <div class="support-card mt-2" *ngIf="showSupportInfo">
+      <h6 class="mb-2">Technical Support</h6>
+      <div class="small">Email: <a href="mailto:komalstar1516&#64;gmail.com">komalstar1516&#64;gmail.com</a></div>
+      <div class="small">Phone: <a href="tel:97777000000">97777000000</a></div>
+    </div>
+  </div>
 </div>

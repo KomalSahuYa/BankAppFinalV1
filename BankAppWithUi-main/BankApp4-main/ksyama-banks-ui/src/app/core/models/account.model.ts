@@ -57,3 +57,11 @@ export interface EmployeeUpdateRequest {
   emailId: string;
   phoneNumber: string;
 }
+
+export interface AuditLogPageResponse {
+  logs: string[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}

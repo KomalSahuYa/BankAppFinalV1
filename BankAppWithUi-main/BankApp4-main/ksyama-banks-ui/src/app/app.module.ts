@@ -1,5 +1,6 @@
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -16,7 +17,7 @@ import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [AppComponent, ClerkDashboardComponent, ManagerDashboardComponent, DashboardHomeComponent, CalendarComponent, ProfileComponent],
-  imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, SharedModule],
+  imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, SharedModule, FormsModule],
   providers: [
     provideHttpClient(withInterceptors([errorInterceptor]), withInterceptorsFromDi()),
     {

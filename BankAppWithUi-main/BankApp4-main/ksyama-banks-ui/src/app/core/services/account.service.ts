@@ -10,7 +10,8 @@ import {
   AccountUpdateRequest,
   EmployeeCreateRequest,
   EmployeeUpdateRequest,
-  EmployeeResponse
+  EmployeeResponse,
+  AuditLogPageResponse
 } from '../models/account.model';
 
 @Injectable({ providedIn: 'root' })
@@ -91,7 +92,15 @@ export class AccountService {
     return this.http.delete<void>(`${this.employeesUrl}/${id}`);
   }
 
-  getAuditLogs(): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.apiBaseUrl}/audit/logs`);
+  getAuditLogs(day?: string, page = 1, size = 10): Observable<AuditLogPageResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (day) {
+      params = params.set('day', day);
+    }
+
+    return this.http.get<AuditLogPageResponse>(`${environment.apiBaseUrl}/audit/logs`, { params });
   }
 }

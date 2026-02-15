@@ -55,11 +55,23 @@
 
   <div class="col-12">
     <div class="card p-3 app-card">
-      <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h5 class="mb-0">Audit Logs (Manager Only)</h5>
-        <button class="btn btn-outline-secondary btn-sm" (click)="loadLogs()">Get Logs</button>
+        <div class="d-flex gap-2 align-items-center">
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="logSearchDate" />
+          <button class="btn btn-outline-primary btn-sm" (click)="searchLogs()">Search</button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="loadLogs()">Refresh</button>
+        </div>
       </div>
-      <div class="small" *ngFor="let log of auditLogs">{{ log }}</div>
+      <div *ngIf="auditLogs.length === 0" class="small text-muted">No logs found for the selected day.</div>
+      <ul class="list-group list-group-flush" *ngIf="auditLogs.length > 0">
+        <li class="list-group-item small" *ngFor="let log of auditLogs">{{ log }}</li>
+      </ul>
+      <div class="d-flex justify-content-end align-items-center gap-2 mt-3" *ngIf="totalLogElements > logPageSize">
+        <button class="btn btn-outline-secondary btn-sm" (click)="prevLogPage()" [disabled]="logPage===1">Prev</button>
+        <span class="small">Page {{ logPage }} / {{ totalLogPages }}</span>
+        <button class="btn btn-outline-secondary btn-sm" (click)="nextLogPage()" [disabled]="logPage===totalLogPages">Next</button>
+      </div>
     </div>
   </div>
 </div>
