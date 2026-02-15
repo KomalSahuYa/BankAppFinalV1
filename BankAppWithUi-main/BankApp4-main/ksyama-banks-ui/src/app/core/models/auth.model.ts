@@ -5,6 +5,12 @@ export interface AuthRequest {
 
 export interface AuthResponse {
   token: string;
+  userId?: number;
+  username?: string;
+  role?: 'MANAGER' | 'CLERK';
+  fullName?: string;
+  emailId?: string;
+  phoneNumber?: string;
 }
 
 export interface JwtPayload {

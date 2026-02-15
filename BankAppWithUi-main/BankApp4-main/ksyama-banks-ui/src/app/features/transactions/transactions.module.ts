@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { TransactionsRoutingModule } from './transactions-routing.module';
 import { SharedModule } from '../../shared/shared.module';
@@ -12,6 +12,6 @@ import { TransferComponent } from './pages/transfer/transfer.component';
 
 @NgModule({
   declarations: [DepositComponent, WithdrawComponent, TransactionHistoryComponent, PendingApprovalsComponent, TransferComponent],
-  imports: [CommonModule, ReactiveFormsModule, TransactionsRoutingModule, SharedModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TransactionsRoutingModule, SharedModule]
 })
 export class TransactionsModule {}

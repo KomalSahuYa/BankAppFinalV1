@@ -14,6 +14,7 @@ export interface User {
   token: string;
   email?: string;
   fullName?: string;
+  phoneNumber?: string;
 }
 
 @Injectable({
@@ -53,8 +54,9 @@ export class AuthService {
             username: response.username ?? request.username,
             role: (response.role ?? derivedRole) as 'MANAGER' | 'CLERK',
             token: response.token,
-            email: response.email,
-            fullName: response.fullName
+            email: response.emailId ?? response.email,
+            fullName: response.fullName,
+            phoneNumber: response.phoneNumber
           };
 
           this.storeCurrentUser(user, persist);

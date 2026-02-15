@@ -82,7 +82,7 @@
 <div class="dialog-backdrop" *ngIf="employeeToDelete">
   <div class="dialog-card">
     <h5 class="mb-2">Delete clerk user</h5>
-    <p class="mb-3">Are you sure you want to delete <strong>{{ employeeToDelete?.username }}</strong>?</p>
+    <p class="mb-3">Are you sure you want to delete <strong>{{ employeeToDelete.username }}</strong>?</p>
     <div class="d-flex justify-content-end gap-2">
       <button class="btn btn-outline-secondary" type="button" (click)="cancelDelete()">Cancel</button>
       <button class="btn btn-danger" type="button" [disabled]="actionInProgress" (click)="confirmDeleteEmployee()">Delete</button>
