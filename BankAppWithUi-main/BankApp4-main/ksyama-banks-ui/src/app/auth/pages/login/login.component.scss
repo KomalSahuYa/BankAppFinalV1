@@ -67,9 +67,28 @@
 
 .login-form-panel {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #0f172a;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
+}
+
+.logo-pill {
+  background: #1d4ed8;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  letter-spacing: 0.05em;
+}
+
+.login-mini-brand {
+  color: #1e293b;
+}
+
+.form-label {
+  color: #0f172a;
+  font-weight: 600;
 }

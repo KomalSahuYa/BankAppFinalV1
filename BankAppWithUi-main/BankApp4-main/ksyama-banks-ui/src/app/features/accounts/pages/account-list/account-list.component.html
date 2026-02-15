@@ -20,8 +20,19 @@
     <div class="col-md-6"><input class="form-control" [placeholder]="lookupForm.controls.lookupType.value === 'holderName' ? 'Lookup by account holder name' : 'Lookup by account number'" formControlName="lookupValue" /></div>
     <div class="col-md-3"><button class="btn btn-outline-primary w-100" type="submit">Get Account Info</button></div>
   </form>
-  <div class="alert alert-info py-2" *ngIf="lookupResult">
-    <strong>{{ lookupResult.holderName }}</strong> | {{ lookupResult.accountNumber }} | {{ lookupResult.mobileNumber }} | ₹{{ lookupResult.balance | number:'1.2-2' }}
+  <div class="card p-3 app-card mb-3" *ngIf="lookupResult">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h6 class="mb-1">{{ lookupResult.holderName }}</h6>
+        <div class="small text-muted">Account Number: {{ lookupResult.accountNumber }}</div>
+        <div class="small text-muted">Mobile: {{ lookupResult.mobileNumber }}</div>
+        <div class="small text-muted">Balance: ₹{{ lookupResult.balance | number:'1.2-2' }}</div>
+      </div>
+      <div class="text-nowrap" *ngIf="permissionService.canUpdateAccount() || permissionService.canDeleteAccount()">
+        <button *ngIf="permissionService.canUpdateAccount()" class="btn btn-action-edit btn-sm me-2" (click)="openEditPage(lookupResult.accountNumber)">Edit</button>
+        <button *ngIf="permissionService.canDeleteAccount()" class="btn btn-action-delete btn-sm" [disabled]="actionInProgress" (click)="requestDelete(lookupResult)">Delete</button>
+      </div>
+    </div>
   </div>
   <div *ngIf="loading">Loading accounts...</div>
 

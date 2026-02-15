@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { ClerkDashboardComponent } from './pages/clerk-dashboard/clerk-dashboard.component';
 import { ManagerDashboardComponent } from './pages/manager-dashboard/manager-dashboard.component';
@@ -9,6 +10,6 @@ import { ProfileComponent } from './pages/profile/profile.component';
 
 @NgModule({
   declarations: [ClerkDashboardComponent, ManagerDashboardComponent, CalendarComponent, ProfileComponent],
-  imports: [CommonModule, DashboardRoutingModule]
+  imports: [CommonModule, FormsModule, DashboardRoutingModule]
 })
 export class DashboardModule {}

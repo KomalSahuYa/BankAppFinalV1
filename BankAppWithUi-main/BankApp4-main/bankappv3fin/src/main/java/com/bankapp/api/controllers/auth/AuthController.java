@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bankapp.api.dto.auth.AuthRequest;
 import com.bankapp.api.dto.auth.AuthResponse;
+import com.bankapp.api.entities.Employee;
 import com.bankapp.api.exceptions.BusinessException;
 import com.bankapp.api.repositories.EmployeeRepository;
 import com.bankapp.api.security.JwtService;
@@ -45,7 +46,17 @@ public class AuthController {
 
         if (authentication.isAuthenticated()) {
             UserDetails user = userDetailsService.loadUserByUsername(authRequest.username());
-            return new AuthResponse(jwtService.generateToken(user));
+            Employee employee = employeeRepository.findByUsernameAndActiveTrue(authRequest.username())
+                    .orElseThrow(() -> new UsernameNotFoundException("Login failed: user is invalid."));
+
+            return new AuthResponse(
+                    jwtService.generateToken(user),
+                    employee.getId(),
+                    employee.getUsername(),
+                    employee.getRole().name(),
+                    employee.getFullName(),
+                    employee.getEmailId(),
+                    employee.getPhoneNumber());
         }
 
         throw new UsernameNotFoundException("Login failed: user is invalid.");
